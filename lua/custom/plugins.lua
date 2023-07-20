@@ -1,5 +1,6 @@
 -- In order to modify the `lspconfig` configuration:
 local plugins = {
+  { 'EtiamNullam/deferred-clipboard.nvim', lazy = false},
   {
     "jose-elias-alvarez/null-ls.nvim",
     ft = {"python"},
