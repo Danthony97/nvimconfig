@@ -1,0 +1,195 @@
+
+sysvinit – Manage SysV services¶
+
+New in version 2.6.
+
+-   Synopsis
+
+-   Requirements
+
+-   Parameters
+
+-   Notes
+
+-   Examples
+
+-   Return Values
+
+-   Status
+
+Synopsis¶
+
+-   Controls services on target hosts that use the SysV init system.
+
+Requirements¶
+
+The below requirements are needed on the host that executes this module.
+
+-   That the service managed has a corresponding init script.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| arguments             |                       | Additional arguments  |
+|                       |                       | provided on the       |
+| -                     |                       | command line that     |
+|                       |                       | some init scripts     |
+|                       |                       | accept.               |
+|                       |                       |                       |
+|                       |                       | aliases: args         |
++-----------------------+-----------------------+-----------------------+
+| daemonize             | -   no ←              | Have the module       |
+|                       |                       | daemonize as the      |
+| boolean               | -   yes               | service itself might  |
+|                       |                       | not do so properly.   |
+|                       |                       |                       |
+|                       |                       | This is useful with   |
+|                       |                       | badly written init    |
+|                       |                       | scripts or daemons,   |
+|                       |                       | which commonly        |
+|                       |                       | manifests as the task |
+|                       |                       | hanging as it is      |
+|                       |                       | still holding the tty |
+|                       |                       | or the service dying  |
+|                       |                       | when the task is over |
+|                       |                       | as the connection     |
+|                       |                       | closes the session.   |
++-----------------------+-----------------------+-----------------------+
+| enabled               | -   no                | Whether the service   |
+|                       | -   yes               | should start on boot. |
+| boolean               |                       | At least one of state |
+|                       |                       | and enabled are       |
+|                       |                       | required.             |
++-----------------------+-----------------------+-----------------------+
+| name                  |                       | Name of the service.  |
+|                       |                       |                       |
+| - / required          |                       | aliases: service      |
++-----------------------+-----------------------+-----------------------+
+| pattern               |                       | A substring to look   |
+|                       |                       | for as would be found |
+| -                     |                       | in the output of the  |
+|                       |                       | ps command as a       |
+|                       |                       | stand-in for a status |
+|                       |                       | result.               |
+|                       |                       |                       |
+|                       |                       | If the string is      |
+|                       |                       | found, the service    |
+|                       |                       | will be assumed to be |
+|                       |                       | running.              |
+|                       |                       |                       |
+|                       |                       | This option is mainly |
+|                       |                       | for use with init     |
+|                       |                       | scripts that don't    |
+|                       |                       | support the 'status'  |
+|                       |                       | option.               |
++-----------------------+-----------------------+-----------------------+
+| runlevels             |                       | The runlevels this    |
+|                       |                       | script should be      |
+| -                     |                       | enabled/disabled      |
+|                       |                       | from.                 |
+|                       |                       |                       |
+|                       |                       | Use this to override  |
+|                       |                       | the defaults set by   |
+|                       |                       | the package or init   |
+|                       |                       | script itself.        |
++-----------------------+-----------------------+-----------------------+
+| sleep                 | Default:              | If the service is     |
+|                       |                       | being restarted or    |
+| -                     | 1                     | reloaded then sleep   |
+|                       |                       | this many seconds     |
+|                       |                       | between the stop and  |
+|                       |                       | start command. This   |
+|                       |                       | helps to workaround   |
+|                       |                       | badly behaving        |
+|                       |                       | services.             |
++-----------------------+-----------------------+-----------------------+
+| state                 | -   started           | started/stopped are   |
+|                       | -   stopped           | idempotent actions    |
+| -                     | -   restarted         | that will not run     |
+|                       | -   reloaded          | commands unless       |
+|                       |                       | necessary. Not all    |
+|                       |                       | init scripts support  |
+|                       |                       | restarted nor         |
+|                       |                       | reloaded natively, so |
+|                       |                       | these will both       |
+|                       |                       | trigger a stop and    |
+|                       |                       | start as needed.      |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   One option other than name is required.
+
+Examples¶
+
+    - name: make sure apache2 is started
+      sysvinit:
+          name: apache2
+          state: started
+          enabled: yes
+
+    - name: make sure apache2 is started on runlevels 3 and 5
+      sysvinit:
+          name: apache2
+          state: started
+          enabled: yes
+          runlevels:
+            - 3
+            - 5
+
+Return Values¶
+
+Common return values are documented here, the following are the fields
+unique to this module:
+
++-----------------------+-----------------------+-----------------------+
+| Key                   | Returned              | Description           |
++=======================+=======================+=======================+
+| results               | always                | results from actions  |
+|                       |                       | taken                 |
+| complex               |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | {'attempts': 1,       |
+|                       |                       | 'changed': True,      |
+|                       |                       | 'name': 'apache2',    |
+|                       |                       | 'status': {'enabled': |
+|                       |                       | {'changed': True,     |
+|                       |                       | 'rc': 0, 'stderr':    |
+|                       |                       | '', 'stdout': ''},    |
+|                       |                       | 'stopped':            |
+|                       |                       | {'changed': True,     |
+|                       |                       | 'rc': 0, 'stderr':    |
+|                       |                       | '', 'stdout':         |
+|                       |                       | 'Stopping web server: |
+|                       |                       | apache2.\n'}}}        |
++-----------------------+-----------------------+-----------------------+
+
+Status¶
+
+-   This module is not guaranteed to have a backwards compatible
+    interface. [preview]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

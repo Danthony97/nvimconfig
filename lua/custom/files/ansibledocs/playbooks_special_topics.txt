@@ -1,0 +1,28 @@
+-   Red Hat Ansible Automation Platform
+-   Ansible Automation Hub
+-   Logging Ansible output
+
+Roadmaps
+
+-   Ansible Roadmap
+-   ansible-core Roadmaps
+
+[]
+
+Ansible
+
+-   
+-   Advanced playbooks features
+-   Edit on GitHub
+
+------------------------------------------------------------------------
+
+Advanced playbooks features
+
+This page is obsolete. Refer to the main User Guide index page for links
+to all playbook-related topics. Please update any links you may have
+made directly to this page.
+
+------------------------------------------------------------------------
+
+© Copyright Ansible project contributors. Last updated on Jul 18, 2023.

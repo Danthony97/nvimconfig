@@ -1,0 +1,260 @@
+
+command – Execute commands on targets¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Return Values
+
+-   Status
+
+Synopsis¶
+
+-   The command module takes the command name followed by a list of
+    space-delimited arguments.
+
+-   The given command will be executed on all selected nodes.
+
+-   The command(s) will not be processed through the shell, so variables
+    like $HOME and operations like "<", ">", "|", ";" and "&" will not
+    work. Use the shell module if you need these features.
+
+-   To create command tasks that are easier to read than the ones using
+    space-delimited arguments, pass parameters using the args task
+    keyword or use cmd parameter.
+
+-   Either a free form command or cmd parameter is required, see the
+    examples.
+
+-   For Windows targets, use the win_command module instead.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| argv                  |                       | Passes the command as |
+|                       |                       | a list rather than a  |
+| list                  |                       | string.               |
+|                       |                       |                       |
+| added in 2.6          |                       | Use argv to avoid     |
+|                       |                       | quoting values that   |
+|                       |                       | would otherwise be    |
+|                       |                       | interpreted           |
+|                       |                       | incorrectly (for      |
+|                       |                       | example "user name"). |
+|                       |                       |                       |
+|                       |                       | Only the string or    |
+|                       |                       | the list form can be  |
+|                       |                       | provided, not both.   |
+|                       |                       | One or the other must |
+|                       |                       | be provided.          |
++-----------------------+-----------------------+-----------------------+
+| chdir                 |                       | Change into this      |
+|                       |                       | directory before      |
+| path                  |                       | running the command.  |
++-----------------------+-----------------------+-----------------------+
+| cmd                   |                       | The command to run.   |
+|                       |                       |                       |
+| string                |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| creates               |                       | A filename or (since  |
+|                       |                       | 2.0) glob pattern. If |
+| path                  |                       | it already exists,    |
+|                       |                       | this step won't be    |
+|                       |                       | run.                  |
++-----------------------+-----------------------+-----------------------+
+| free_form             |                       | The command module    |
+|                       |                       | takes a free form     |
+| -                     |                       | command to run.       |
+|                       |                       |                       |
+|                       |                       | There is no actual    |
+|                       |                       | parameter named 'free |
+|                       |                       | form'.                |
++-----------------------+-----------------------+-----------------------+
+| removes               |                       | A filename or (since  |
+|                       |                       | 2.0) glob pattern. If |
+| path                  |                       | it already exists,    |
+|                       |                       | this step will be     |
+|                       |                       | run.                  |
++-----------------------+-----------------------+-----------------------+
+| stdin                 |                       | Set the stdin of the  |
+|                       |                       | command directly to   |
+| -                     |                       | the specified value.  |
+|                       |                       |                       |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| stdin_add_newline     | -   no                | If set to yes, append |
+|                       |                       | a newline to stdin    |
+| boolean               | -   yes ←             | data.                 |
+|                       |                       |                       |
+| added in 2.8          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| strip_empty_ends      | -   no                | Strip empty lines     |
+|                       |                       | from the end of       |
+| boolean               | -   yes ←             | stdout/stderr in      |
+|                       |                       | result.               |
+| added in 2.8          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| warn                  | -   no                | Enable or disable     |
+|                       |                       | task warnings.        |
+| boolean               | -   yes ←             |                       |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   If you want to run a command through the shell (say you are using <,
+    >, |, etc), you actually want the shell module instead. Parsing
+    shell metacharacters can lead to unexpected commands being executed
+    if quoting is not done correctly so it is more secure to use the
+    command module when possible.
+
+-   creates, removes, and chdir can be specified after the command. For
+    instance, if you only want to run a command if a certain file does
+    not exist, use this.
+
+-   Check mode is supported when passing creates or removes. If running
+    in check mode and either of these are specified, the module will
+    check for the existence of the file and report the correct changed
+    status. If these are not supplied, the task will be skipped.
+
+-   The executable parameter is removed since version 2.4. If you have a
+    need for this parameter, use the shell module instead.
+
+-   For Windows targets, use the win_command module instead.
+
+-   For rebooting systems, use the reboot or win_reboot module.
+
+See Also¶
+
+See also
+
+raw – Executes a low-down and dirty command
+
+    The official documentation on the raw module.
+
+script – Runs a local script on a remote node after transferring it
+
+    The official documentation on the script module.
+
+shell – Execute shell commands on targets
+
+    The official documentation on the shell module.
+
+win_command – Executes a command on a remote Windows node
+
+    The official documentation on the win_command module.
+
+Examples¶
+
+    - name: return motd to registered var
+      command: cat /etc/motd
+      register: mymotd
+
+    - name: Run command if /path/to/database does not exist (without 'args' keyword).
+      command: /usr/bin/make_database.sh db_user db_name creates=/path/to/database
+
+    # 'args' is a task keyword, passed at the same level as the module
+    - name: Run command if /path/to/database does not exist (with 'args' keyword).
+      command: /usr/bin/make_database.sh db_user db_name
+      args:
+        creates: /path/to/database
+
+    # 'cmd' is module parameter
+    - name: Run command if /path/to/database does not exist (with 'cmd' parameter).
+      command:
+        cmd: /usr/bin/make_database.sh db_user db_name
+        creates: /path/to/database
+
+    - name: Change the working directory to somedir/ and run the command as db_owner if /path/to/database does not exist.
+      command: /usr/bin/make_database.sh db_user db_name
+      become: yes
+      become_user: db_owner
+      args:
+        chdir: somedir/
+        creates: /path/to/database
+
+    # 'argv' is a parameter, indented one level from the module
+    - name: Use 'argv' to send a command as a list - leave 'command' empty
+      command:
+        argv:
+          - /usr/bin/make_database.sh
+          - Username with whitespace
+          - dbname with whitespace
+
+    - name: safely use templated variable to run command. Always use the quote filter to avoid injection issues.
+      command: cat {{ myfile|quote }}
+      register: myoutput
+
+Return Values¶
+
+Common return values are documented here, the following are the fields
+unique to this module:
+
++-----------------------+-----------------------+-----------------------+
+| Key                   | Returned              | Description           |
++=======================+=======================+=======================+
+| cmd                   | always                | the cmd that was run  |
+|                       |                       | on the remote machine |
+| list                  |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | ['echo', 'hello']     |
++-----------------------+-----------------------+-----------------------+
+| delta                 | always                | cmd end time - cmd    |
+|                       |                       | start time            |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 0.001529              |
++-----------------------+-----------------------+-----------------------+
+| end                   | always                | cmd end time          |
+|                       |                       |                       |
+| string                |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 2017-09-29            |
+|                       |                       | 22:03:48.084657       |
++-----------------------+-----------------------+-----------------------+
+| start                 | always                | cmd start time        |
+|                       |                       |                       |
+| string                |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 2017-09-29            |
+|                       |                       | 22:03:48.083128       |
++-----------------------+-----------------------+-----------------------+
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team
+
+-   Michael DeHaan
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

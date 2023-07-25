@@ -1,0 +1,709 @@
+
+get_url – Downloads files from HTTP, HTTPS, or FTP to node¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Return Values
+
+-   Status
+
+Synopsis¶
+
+-   Downloads files from HTTP, HTTPS, or FTP to the remote server. The
+    remote server must have direct access to the remote resource.
+
+-   By default, if an environment variable <protocol>_proxy is set on
+    the target host, requests will be sent through that proxy. This
+    behaviour can be overridden by setting a variable for this task (see
+    setting the environment), or by using the use_proxy option.
+
+-   HTTP redirects can redirect from HTTP to HTTPS so you should be sure
+    that your proxy environment for both protocols is correct.
+
+-   From Ansible 2.4 when run with --check, it will do a HEAD request to
+    validate the URL but will not download the entire file or verify it
+    against hashes.
+
+-   For Windows targets, use the win_get_url module instead.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| attributes            |                       | The attributes the    |
+|                       |                       | resulting file or     |
+| string                |                       | directory should      |
+|                       |                       | have.                 |
+|                       |                       |                       |
+|                       |                       | To get supported      |
+|                       |                       | flags look at the man |
+|                       |                       | page for chattr on    |
+|                       |                       | the target system.    |
+|                       |                       |                       |
+|                       |                       | This string should    |
+|                       |                       | contain the           |
+|                       |                       | attributes in the     |
+|                       |                       | same order as the one |
+|                       |                       | displayed by lsattr.  |
+|                       |                       |                       |
+|                       |                       | The = operator is     |
+|                       |                       | assumed as default,   |
+|                       |                       | otherwise + or -      |
+|                       |                       | operators need to be  |
+|                       |                       | included in the       |
+|                       |                       | string.               |
+|                       |                       |                       |
+|                       |                       | aliases: attr         |
++-----------------------+-----------------------+-----------------------+
+| backup                | -   no ←              | Create a backup file  |
+|                       |                       | including the         |
+| boolean               | -   yes               | timestamp information |
+|                       |                       | so you can get the    |
+|                       |                       | original file back if |
+|                       |                       | you somehow clobbered |
+|                       |                       | it incorrectly.       |
++-----------------------+-----------------------+-----------------------+
+| checksum              | Default:              | If a checksum is      |
+|                       |                       | passed to this        |
+| string                | ""                    | parameter, the digest |
+|                       |                       | of the destination    |
+|                       |                       | file will be          |
+|                       |                       | calculated after it   |
+|                       |                       | is downloaded to      |
+|                       |                       | ensure its integrity  |
+|                       |                       | and verify that the   |
+|                       |                       | transfer completed    |
+|                       |                       | successfully. Format: |
+|                       |                       | <algor                |
+|                       |                       | ithm>:<checksum|url>, |
+|                       |                       | e.g.                  |
+|                       |                       | checksum="sha256:D9   |
+|                       |                       | 8291AC[...]B6DC7B97", |
+|                       |                       | checksum="sha         |
+|                       |                       | 256:http://example.co |
+|                       |                       | m/path/sha256sum.txt" |
+|                       |                       |                       |
+|                       |                       | If you worry about    |
+|                       |                       | portability, only the |
+|                       |                       | sha1 algorithm is     |
+|                       |                       | available on all      |
+|                       |                       | platforms and python  |
+|                       |                       | versions.             |
+|                       |                       |                       |
+|                       |                       | The third party       |
+|                       |                       | hashlib library can   |
+|                       |                       | be installed for      |
+|                       |                       | access to additional  |
+|                       |                       | algorithms.           |
+|                       |                       |                       |
+|                       |                       | Additionally, if a    |
+|                       |                       | checksum is passed to |
+|                       |                       | this parameter, and   |
+|                       |                       | the file exist under  |
+|                       |                       | the dest location,    |
+|                       |                       | the                   |
+|                       |                       | destination_checksum  |
+|                       |                       | would be calculated,  |
+|                       |                       | and if checksum       |
+|                       |                       | equals                |
+|                       |                       | destination_checksum, |
+|                       |                       | the file download     |
+|                       |                       | would be skipped      |
+|                       |                       | (unless force is      |
+|                       |                       | true). If the         |
+|                       |                       | checksum does not     |
+|                       |                       | equal                 |
+|                       |                       | destination_checksum, |
+|                       |                       | the destination file  |
+|                       |                       | is deleted.           |
++-----------------------+-----------------------+-----------------------+
+| client_cert           |                       | PEM formatted         |
+|                       |                       | certificate chain     |
+| path                  |                       | file to be used for   |
+|                       |                       | SSL client            |
+| added in 2.4          |                       | authentication.       |
+|                       |                       |                       |
+|                       |                       | This file can also    |
+|                       |                       | include the key as    |
+|                       |                       | well, and if the key  |
+|                       |                       | is included,          |
+|                       |                       | client_key is not     |
+|                       |                       | required.             |
++-----------------------+-----------------------+-----------------------+
+| client_key            |                       | PEM formatted file    |
+|                       |                       | that contains your    |
+| path                  |                       | private key to be     |
+|                       |                       | used for SSL client   |
+| added in 2.4          |                       | authentication.       |
+|                       |                       |                       |
+|                       |                       | If client_cert        |
+|                       |                       | contains both the     |
+|                       |                       | certificate and key,  |
+|                       |                       | this option is not    |
+|                       |                       | required.             |
++-----------------------+-----------------------+-----------------------+
+| dest                  |                       | Absolute path of      |
+|                       |                       | where to download the |
+| path / required       |                       | file to.              |
+|                       |                       |                       |
+|                       |                       | If dest is a          |
+|                       |                       | directory, either the |
+|                       |                       | server provided       |
+|                       |                       | filename or, if none  |
+|                       |                       | provided, the base    |
+|                       |                       | name of the URL on    |
+|                       |                       | the remote server     |
+|                       |                       | will be used. If a    |
+|                       |                       | directory, force has  |
+|                       |                       | no effect.            |
+|                       |                       |                       |
+|                       |                       | If dest is a          |
+|                       |                       | directory, the file   |
+|                       |                       | will always be        |
+|                       |                       | downloaded            |
+|                       |                       | (regardless of the    |
+|                       |                       | force option), but    |
+|                       |                       | replaced only if the  |
+|                       |                       | contents changed..    |
++-----------------------+-----------------------+-----------------------+
+| force                 | -   no ←              | If yes and dest is    |
+|                       |                       | not a directory, will |
+| boolean               | -   yes               | download the file     |
+|                       |                       | every time and        |
+|                       |                       | replace the file if   |
+|                       |                       | the contents change.  |
+|                       |                       | If no, the file will  |
+|                       |                       | only be downloaded if |
+|                       |                       | the destination does  |
+|                       |                       | not exist. Generally  |
+|                       |                       | should be yes only    |
+|                       |                       | for small local       |
+|                       |                       | files.                |
+|                       |                       |                       |
+|                       |                       | Prior to 0.6, this    |
+|                       |                       | module behaved as if  |
+|                       |                       | yes was the default.  |
+|                       |                       |                       |
+|                       |                       | Alias thirsty has     |
+|                       |                       | been deprecated and   |
+|                       |                       | will be removed in    |
+|                       |                       | 2.13.                 |
+|                       |                       |                       |
+|                       |                       | aliases: thirsty      |
++-----------------------+-----------------------+-----------------------+
+| force_basic_auth      | -   no ←              | Force the sending of  |
+|                       |                       | the Basic             |
+| boolean               | -   yes               | authentication header |
+|                       |                       | upon initial request. |
+|                       |                       |                       |
+|                       |                       | httplib2, the library |
+|                       |                       | used by the uri       |
+|                       |                       | module only sends     |
+|                       |                       | authentication        |
+|                       |                       | information when a    |
+|                       |                       | webservice responds   |
+|                       |                       | to an initial request |
+|                       |                       | with a 401 status.    |
+|                       |                       | Since some basic auth |
+|                       |                       | services do not       |
+|                       |                       | properly send a 401,  |
+|                       |                       | logins will fail.     |
++-----------------------+-----------------------+-----------------------+
+| group                 |                       | Name of the group     |
+|                       |                       | that should own the   |
+| string                |                       | file/directory, as    |
+|                       |                       | would be fed to       |
+|                       |                       | chown.                |
++-----------------------+-----------------------+-----------------------+
+| headers               |                       | Add custom HTTP       |
+|                       |                       | headers to a request  |
+| raw                   |                       | in hash/dict format.  |
+|                       |                       |                       |
+|                       |                       | The hash/dict format  |
+|                       |                       | was added in Ansible  |
+|                       |                       | 2.6.                  |
+|                       |                       |                       |
+|                       |                       | Previous versions     |
+|                       |                       | used a                |
+|                       |                       | "key:value,key:value" |
+|                       |                       | string format.        |
+|                       |                       |                       |
+|                       |                       | The                   |
+|                       |                       | "key:value,key:value" |
+|                       |                       | string format is      |
+|                       |                       | deprecated and will   |
+|                       |                       | be removed in version |
+|                       |                       | 2.10.                 |
++-----------------------+-----------------------+-----------------------+
+| http_agent            | Default:              | Header to identify    |
+|                       |                       | as, generally appears |
+| string                | "ansible-httpget"     | in web server logs.   |
++-----------------------+-----------------------+-----------------------+
+| mode                  |                       | The permissions the   |
+|                       |                       | resulting file or     |
+| string                |                       | directory should      |
+|                       |                       | have.                 |
+|                       |                       |                       |
+|                       |                       | For those used to     |
+|                       |                       | /usr/bin/chmod        |
+|                       |                       | remember that modes   |
+|                       |                       | are actually octal    |
+|                       |                       | numbers. You must     |
+|                       |                       | either add a leading  |
+|                       |                       | zero so that          |
+|                       |                       | Ansible's YAML parser |
+|                       |                       | knows it is an octal  |
+|                       |                       | number (like 0644 or  |
+|                       |                       | 01777) or quote it    |
+|                       |                       | (like '644' or        |
+|                       |                       | '1777') so Ansible    |
+|                       |                       | receives a string and |
+|                       |                       | can do its own        |
+|                       |                       | conversion from       |
+|                       |                       | string into number.   |
+|                       |                       |                       |
+|                       |                       | Giving Ansible a      |
+|                       |                       | number without        |
+|                       |                       | following one of      |
+|                       |                       | these rules will end  |
+|                       |                       | up with a decimal     |
+|                       |                       | number which will     |
+|                       |                       | have unexpected       |
+|                       |                       | results.              |
+|                       |                       |                       |
+|                       |                       | As of Ansible 1.8,    |
+|                       |                       | the mode may be       |
+|                       |                       | specified as a        |
+|                       |                       | symbolic mode (for    |
+|                       |                       | example, u+rwx or     |
+|                       |                       | u=rw,g=r,o=r).        |
++-----------------------+-----------------------+-----------------------+
+| owner                 |                       | Name of the user that |
+|                       |                       | should own the        |
+| string                |                       | file/directory, as    |
+|                       |                       | would be fed to       |
+|                       |                       | chown.                |
++-----------------------+-----------------------+-----------------------+
+| selevel               | Default:              | The level part of the |
+|                       |                       | SELinux file context. |
+| string                | "s0"                  |                       |
+|                       |                       | This is the MLS/MCS   |
+|                       |                       | attribute, sometimes  |
+|                       |                       | known as the range.   |
+|                       |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the level |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| serole                |                       | The role part of the  |
+|                       |                       | SELinux file context. |
+| string                |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the role  |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| setype                |                       | The type part of the  |
+|                       |                       | SELinux file context. |
+| string                |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the type  |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| seuser                |                       | The user part of the  |
+|                       |                       | SELinux file context. |
+| string                |                       |                       |
+|                       |                       | By default it uses    |
+|                       |                       | the system policy,    |
+|                       |                       | where applicable.     |
+|                       |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the user  |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| sha256sum             | Default:              | If a SHA-256 checksum |
+|                       |                       | is passed to this     |
+| -                     | ""                    | parameter, the digest |
+|                       |                       | of the destination    |
+|                       |                       | file will be          |
+|                       |                       | calculated after it   |
+|                       |                       | is downloaded to      |
+|                       |                       | ensure its integrity  |
+|                       |                       | and verify that the   |
+|                       |                       | transfer completed    |
+|                       |                       | successfully. This    |
+|                       |                       | option is deprecated. |
+|                       |                       | Use checksum instead. |
++-----------------------+-----------------------+-----------------------+
+| timeout               | Default:              | Timeout in seconds    |
+|                       |                       | for URL request.      |
+| integer               | 10                    |                       |
++-----------------------+-----------------------+-----------------------+
+| tmp_dest              |                       | Absolute path of      |
+|                       |                       | where temporary file  |
+| path                  |                       | is downloaded to.     |
+|                       |                       |                       |
+|                       |                       | When run on Ansible   |
+|                       |                       | 2.5 or greater, path  |
+|                       |                       | defaults to ansible's |
+|                       |                       | remote_tmp setting    |
+|                       |                       |                       |
+|                       |                       | When run on Ansible   |
+|                       |                       | prior to 2.5, it      |
+|                       |                       | defaults to TMPDIR,   |
+|                       |                       | TEMP or TMP env       |
+|                       |                       | variables or a        |
+|                       |                       | platform specific     |
+|                       |                       | value.                |
+|                       |                       |                       |
+|                       |                       | h                     |
+|                       |                       | ttps://docs.python.or |
+|                       |                       | g/2/library/tempfile. |
+|                       |                       | html#tempfile.tempdir |
++-----------------------+-----------------------+-----------------------+
+| unsafe_writes         | -   no ←              | Influence when to use |
+|                       |                       | atomic operation to   |
+| boolean               | -   yes               | prevent data          |
+|                       |                       | corruption or         |
+|                       |                       | inconsistent reads    |
+|                       |                       | from the target file. |
+|                       |                       |                       |
+|                       |                       | By default this       |
+|                       |                       | module uses atomic    |
+|                       |                       | operations to prevent |
+|                       |                       | data corruption or    |
+|                       |                       | inconsistent reads    |
+|                       |                       | from the target       |
+|                       |                       | files, but sometimes  |
+|                       |                       | systems are           |
+|                       |                       | configured or just    |
+|                       |                       | broken in ways that   |
+|                       |                       | prevent this. One     |
+|                       |                       | example is docker     |
+|                       |                       | mounted files, which  |
+|                       |                       | cannot be updated     |
+|                       |                       | atomically from       |
+|                       |                       | inside the container  |
+|                       |                       | and can only be       |
+|                       |                       | written in an unsafe  |
+|                       |                       | manner.               |
+|                       |                       |                       |
+|                       |                       | This option allows    |
+|                       |                       | Ansible to fall back  |
+|                       |                       | to unsafe methods of  |
+|                       |                       | updating files when   |
+|                       |                       | atomic operations     |
+|                       |                       | fail (however, it     |
+|                       |                       | doesn't force Ansible |
+|                       |                       | to perform unsafe     |
+|                       |                       | writes).              |
+|                       |                       |                       |
+|                       |                       | IMPORTANT! Unsafe     |
+|                       |                       | writes are subject to |
+|                       |                       | race conditions and   |
+|                       |                       | can lead to data      |
+|                       |                       | corruption.           |
++-----------------------+-----------------------+-----------------------+
+| url                   |                       | HTTP, HTTPS, or FTP   |
+|                       |                       | URL in the form       |
+| string / required     |                       | (http|https|ft        |
+|                       |                       | p)://[user[:pass]]@ho |
+|                       |                       | st.domain[:port]/path |
++-----------------------+-----------------------+-----------------------+
+| url_password          |                       | The password for use  |
+|                       |                       | in HTTP basic         |
+| string                |                       | authentication.       |
+|                       |                       |                       |
+|                       |                       | If the url_username   |
+|                       |                       | parameter is not      |
+|                       |                       | specified, the        |
+|                       |                       | url_password          |
+|                       |                       | parameter will not be |
+|                       |                       | used.                 |
+|                       |                       |                       |
+|                       |                       | Since version 2.8 you |
+|                       |                       | can also use the      |
+|                       |                       | 'password' alias for  |
+|                       |                       | this option.          |
+|                       |                       |                       |
+|                       |                       | aliases: password     |
++-----------------------+-----------------------+-----------------------+
+| url_username          |                       | The username for use  |
+|                       |                       | in HTTP basic         |
+| string                |                       | authentication.       |
+|                       |                       |                       |
+|                       |                       | This parameter can be |
+|                       |                       | used without          |
+|                       |                       | url_password for      |
+|                       |                       | sites that allow      |
+|                       |                       | empty passwords.      |
+|                       |                       |                       |
+|                       |                       | Since version 2.8 you |
+|                       |                       | can also use the      |
+|                       |                       | username alias for    |
+|                       |                       | this option.          |
+|                       |                       |                       |
+|                       |                       | aliases: username     |
++-----------------------+-----------------------+-----------------------+
+| use_proxy             | -   no                | if no, it will not    |
+|                       |                       | use a proxy, even if  |
+| boolean               | -   yes ←             | one is defined in an  |
+|                       |                       | environment variable  |
+|                       |                       | on the target hosts.  |
++-----------------------+-----------------------+-----------------------+
+| validate_certs        | -   no                | If no, SSL            |
+|                       |                       | certificates will not |
+| boolean               | -   yes ←             | be validated.         |
+|                       |                       |                       |
+|                       |                       | This should only be   |
+|                       |                       | used on personally    |
+|                       |                       | controlled sites      |
+|                       |                       | using self-signed     |
+|                       |                       | certificates.         |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   For Windows targets, use the win_get_url module instead.
+
+See Also¶
+
+See also
+
+uri – Interacts with webservices
+
+    The official documentation on the uri module.
+
+win_get_url – Downloads file from HTTP, HTTPS, or FTP to node
+
+    The official documentation on the win_get_url module.
+
+Examples¶
+
+    - name: Download foo.conf
+      get_url:
+        url: http://example.com/path/file.conf
+        dest: /etc/foo.conf
+        mode: '0440'
+
+    - name: Download file and force basic auth
+      get_url:
+        url: http://example.com/path/file.conf
+        dest: /etc/foo.conf
+        force_basic_auth: yes
+
+    - name: Download file with custom HTTP headers
+      get_url:
+        url: http://example.com/path/file.conf
+        dest: /etc/foo.conf
+        headers:
+          key1: one
+          key2: two
+
+    - name: Download file with check (sha256)
+      get_url:
+        url: http://example.com/path/file.conf
+        dest: /etc/foo.conf
+        checksum: sha256:b5bb9d8014a0f9b1d61e21e796d78dccdf1352f23cd32812f4850b878ae4944c
+
+    - name: Download file with check (md5)
+      get_url:
+        url: http://example.com/path/file.conf
+        dest: /etc/foo.conf
+        checksum: md5:66dffb5228a211e61d6d7ef4a86f5758
+
+    - name: Download file with checksum url (sha256)
+      get_url:
+        url: http://example.com/path/file.conf
+        dest: /etc/foo.conf
+        checksum: sha256:http://example.com/path/sha256sum.txt
+
+    - name: Download file from a file path
+      get_url:
+        url: file:///tmp/afile.txt
+        dest: /tmp/afilecopy.txt
+
+    - name: < Fetch file that requires authentication.
+            username/password only available since 2.8, in older versions you need to use url_username/url_password
+      get_url:
+        url: http://example.com/path/file.conf
+        dest: /etc/foo.conf
+        username: bar
+        password: '{{ mysecret }}'
+
+Return Values¶
+
+Common return values are documented here, the following are the fields
+unique to this module:
+
++-----------------------+-----------------------+-----------------------+
+| Key                   | Returned              | Description           |
++=======================+=======================+=======================+
+| backup_file           | changed and if        | name of backup file   |
+|                       | backup=yes            | created after         |
+| string                |                       | download              |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | /path/to/             |
+|                       |                       | [email protected]:09~ |
++-----------------------+-----------------------+-----------------------+
+| checksum_dest         | success               | sha1 checksum of the  |
+|                       |                       | file after copy       |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 6e642bb8dd5c2e027bf   |
+|                       |                       | 21dd923337cbb4214f827 |
++-----------------------+-----------------------+-----------------------+
+| checksum_src          | success               | sha1 checksum of the  |
+|                       |                       | file                  |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 6e642bb8dd5c2e027bf   |
+|                       |                       | 21dd923337cbb4214f827 |
++-----------------------+-----------------------+-----------------------+
+| dest                  | success               | destination file/path |
+|                       |                       |                       |
+| string                |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | /path/to/file.txt     |
++-----------------------+-----------------------+-----------------------+
+| elapsed               | always                | The number of seconds |
+|                       |                       | that elapsed while    |
+| integer               |                       | performing the        |
+|                       |                       | download              |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 23                    |
++-----------------------+-----------------------+-----------------------+
+| gid                   | success               | group id of the file  |
+|                       |                       |                       |
+| integer               |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 100                   |
++-----------------------+-----------------------+-----------------------+
+| group                 | success               | group of the file     |
+|                       |                       |                       |
+| string                |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | httpd                 |
++-----------------------+-----------------------+-----------------------+
+| md5sum                | when supported        | md5 checksum of the   |
+|                       |                       | file after download   |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 2a5aeecc61d           |
+|                       |                       | c98c4d780b14b330e3282 |
++-----------------------+-----------------------+-----------------------+
+| mode                  | success               | permissions of the    |
+|                       |                       | target                |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 0644                  |
++-----------------------+-----------------------+-----------------------+
+| msg                   | always                | the HTTP message from |
+|                       |                       | the request           |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | OK (unknown bytes)    |
++-----------------------+-----------------------+-----------------------+
+| owner                 | success               | owner of the file     |
+|                       |                       |                       |
+| string                |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | httpd                 |
++-----------------------+-----------------------+-----------------------+
+| secontext             | success               | the SELinux security  |
+|                       |                       | context of the file   |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | unconfined_u:o        |
+|                       |                       | bject_r:user_tmp_t:s0 |
++-----------------------+-----------------------+-----------------------+
+| size                  | success               | size of the target    |
+|                       |                       |                       |
+| integer               |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 1220                  |
++-----------------------+-----------------------+-----------------------+
+| src                   | always                | source file used      |
+|                       |                       | after download        |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | /tmp/tmpAdFLdV        |
++-----------------------+-----------------------+-----------------------+
+| state                 | success               | state of the target   |
+|                       |                       |                       |
+| string                |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | file                  |
++-----------------------+-----------------------+-----------------------+
+| status_code           | always                | the HTTP status code  |
+|                       |                       | from the request      |
+| integer               |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 200                   |
++-----------------------+-----------------------+-----------------------+
+| uid                   | success               | owner id of the file, |
+|                       |                       | after execution       |
+| integer               |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 100                   |
++-----------------------+-----------------------+-----------------------+
+| url                   | always                | the actual URL used   |
+|                       |                       | for the request       |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | htt                   |
+|                       |                       | ps://www.ansible.com/ |
++-----------------------+-----------------------+-----------------------+
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Jan-Piet Mens (@jpmens)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

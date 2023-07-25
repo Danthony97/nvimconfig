@@ -1,0 +1,165 @@
+
+package_facts – package information as facts¶
+
+New in version 2.5.
+
+-   Synopsis
+
+-   Requirements
+
+-   Parameters
+
+-   Examples
+
+-   Returned Facts
+
+-   Status
+
+Synopsis¶
+
+-   Return information about installed packages as facts
+
+Requirements¶
+
+The below requirements are needed on the host that executes this module.
+
+-   For ‘portage’ support it requires the qlist utility, which is part
+    of ‘app-portage/portage-utils’.
+
+-   For Debian-based systems python-apt package must be installed on
+    targeted hosts.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| manager               | -   auto ←            | The package manager   |
+|                       |                       | used by the system so |
+| list                  | -   rpm               | we can query the      |
+|                       |                       | package information.  |
+|                       | -   apt               |                       |
+|                       |                       | Since 2.8 this is a   |
+|                       | -   portage           | list and can support  |
+|                       |                       | multiple package      |
+|                       | -   pkg               | managers per system.  |
+|                       |                       |                       |
+|                       | Default:              | The 'portage' and     |
+|                       |                       | 'pkg' options were    |
+|                       | ["auto"]              | added in version 2.8. |
++-----------------------+-----------------------+-----------------------+
+| strategy              | -   first ←           | This option controls  |
+|                       |                       | how the module        |
+| -                     | -   all               | queries the package   |
+|                       |                       | managers on the       |
+| added in 2.8          |                       | system. first means   |
+|                       |                       | it will return only   |
+|                       |                       | information for the   |
+|                       |                       | first supported       |
+|                       |                       | package manager       |
+|                       |                       | available. all will   |
+|                       |                       | return information    |
+|                       |                       | for all supported and |
+|                       |                       | available package     |
+|                       |                       | managers on the       |
+|                       |                       | system.               |
++-----------------------+-----------------------+-----------------------+
+
+Examples¶
+
+    - name: Gather the rpm package facts
+      package_facts:
+        manager: auto
+
+    - name: Print the rpm package facts
+      debug:
+        var: ansible_facts.packages
+
+    - name: Check whether a package called foobar is installed
+      debug:
+        msg: "{{ ansible_facts.packages['foobar'] | length }} versions of foobar are installed!"
+      when: "'foobar' in ansible_facts.packages"
+
+Returned Facts¶
+
+Facts returned by this module are added/updated in the hostvars host
+facts and can be referenced by name just like any other host fact. They
+do not need to be registered in order to use them.
+
+Fact
+
+Returned
+
+Description
+
+packages
+
+dictionary
+
+when operating system level package manager is specified or auto
+detected manager
+
+Maps the package name to a non-empty list of dicts with package
+information.
+
+Every dict in the list corresponds to one installed version of the
+package.
+
+The fields described below are present for all package managers.
+Depending on the package manager, there might be more fields for a
+package.
+
+Sample:
+
+{ "packages": { "kernel": [ { "name": "kernel", "source": "rpm",
+"version": "3.10.0", ... }, { "name": "kernel", "source": "rpm",
+"version": "3.10.0", ... }, ... ], "kernel-tools": [ { "name":
+"kernel-tools", "source": "rpm", "version": "3.10.0", ... } ], ... } }
+
+name
+
+string
+
+always
+
+The package's name.
+
+source
+
+string
+
+always
+
+Where information on the package came from.
+
+version
+
+string
+
+always
+
+The package's version.
+
+Status¶
+
+-   This module is not guaranteed to have a backwards compatible
+    interface. [preview]
+
+-   This module is maintained by the Ansible Community. [community]
+
+Authors¶
+
+-   Matthew Jones (@matburt)
+
+-   Brian Coca (@bcoca)
+
+-   Adam Miller (@maxamillion)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

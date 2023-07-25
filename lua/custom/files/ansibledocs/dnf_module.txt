@@ -1,0 +1,430 @@
+
+dnf – Manages packages with the dnf package manager¶
+
+-   Synopsis
+
+-   Requirements
+
+-   Parameters
+
+-   Notes
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Installs, upgrade, removes, and lists packages and groups with the
+    dnf package manager.
+
+Requirements¶
+
+The below requirements are needed on the host that executes this module.
+
+-   python >= 2.6
+
+-   python-dnf
+
+-   for the autoremove option you need dnf >= 2.0.1”
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| allow_downgrade       | -   no ←              | Specify if the named  |
+|                       |                       | package and version   |
+| boolean               | -   yes               | is allowed to         |
+|                       |                       | downgrade a maybe     |
+| added in 2.7          |                       | already installed     |
+|                       |                       | higher version of     |
+|                       |                       | that package. Note    |
+|                       |                       | that setting          |
+|                       |                       | allow_downgrade=True  |
+|                       |                       | can make this module  |
+|                       |                       | behave in a           |
+|                       |                       | non-idempotent way.   |
+|                       |                       | The task could end up |
+|                       |                       | with a set of         |
+|                       |                       | packages that does    |
+|                       |                       | not match the         |
+|                       |                       | complete list of      |
+|                       |                       | specified packages to |
+|                       |                       | install (because      |
+|                       |                       | dependencies between  |
+|                       |                       | the downgraded        |
+|                       |                       | package and others    |
+|                       |                       | can cause changes to  |
+|                       |                       | the packages which    |
+|                       |                       | were in the earlier   |
+|                       |                       | transaction).         |
++-----------------------+-----------------------+-----------------------+
+| autoremove            | -   no ←              | If yes, removes all   |
+|                       |                       | "leaf" packages from  |
+| boolean               | -   yes               | the system that were  |
+|                       |                       | originally installed  |
+| added in 2.4          |                       | as dependencies of    |
+|                       |                       | user-installed        |
+|                       |                       | packages but which    |
+|                       |                       | are no longer         |
+|                       |                       | required by any such  |
+|                       |                       | package. Should be    |
+|                       |                       | used alone or when    |
+|                       |                       | state is absent       |
++-----------------------+-----------------------+-----------------------+
+| bugfix                | -   no ←              | If set to yes, and    |
+|                       |                       | state=latest then     |
+| boolean               | -   yes               | only installs updates |
+|                       |                       | that have been marked |
+| added in 2.7          |                       | bugfix related.       |
+|                       |                       |                       |
+|                       |                       | Note that, similar to |
+|                       |                       | ``dnf                 |
+|                       |                       | upgrade-minimal``,    |
+|                       |                       | this filter applies   |
+|                       |                       | to dependencies as    |
+|                       |                       | well.                 |
++-----------------------+-----------------------+-----------------------+
+| conf_file             |                       | The remote dnf        |
+|                       |                       | configuration file to |
+| -                     |                       | use for the           |
+|                       |                       | transaction.          |
++-----------------------+-----------------------+-----------------------+
+| disable_excludes      |                       | Disable the excludes  |
+|                       |                       | defined in DNF config |
+| -                     |                       | files.                |
+|                       |                       |                       |
+| added in 2.7          |                       | If set to all,        |
+|                       |                       | disables all          |
+|                       |                       | excludes.             |
+|                       |                       |                       |
+|                       |                       | If set to main,       |
+|                       |                       | disable excludes      |
+|                       |                       | defined in [main] in  |
+|                       |                       | dnf.conf.             |
+|                       |                       |                       |
+|                       |                       | If set to repoid,     |
+|                       |                       | disable excludes      |
+|                       |                       | defined for given     |
+|                       |                       | repo id.              |
++-----------------------+-----------------------+-----------------------+
+| disable_gpg_check     | -   no ←              | Whether to disable    |
+|                       |                       | the GPG checking of   |
+| boolean               | -   yes               | signatures of         |
+|                       |                       | packages being        |
+|                       |                       | installed. Has an     |
+|                       |                       | effect only if state  |
+|                       |                       | is present or latest. |
+|                       |                       |                       |
+|                       |                       | This setting affects  |
+|                       |                       | packages installed    |
+|                       |                       | from a repository as  |
+|                       |                       | well as "local"       |
+|                       |                       | packages installed    |
+|                       |                       | from the filesystem   |
+|                       |                       | or a URL.             |
++-----------------------+-----------------------+-----------------------+
+| disable_plugin        |                       | Plugin name to        |
+|                       |                       | disable for the       |
+| -                     |                       | install/update        |
+|                       |                       | operation. The        |
+| added in 2.7          |                       | disabled plugins will |
+|                       |                       | not persist beyond    |
+|                       |                       | the transaction.      |
++-----------------------+-----------------------+-----------------------+
+| disablerepo           |                       | Repoid of             |
+|                       |                       | repositories to       |
+| -                     |                       | disable for the       |
+|                       |                       | install/update        |
+|                       |                       | operation. These      |
+|                       |                       | repos will not        |
+|                       |                       | persist beyond the    |
+|                       |                       | transaction. When     |
+|                       |                       | specifying multiple   |
+|                       |                       | repos, separate them  |
+|                       |                       | with a ",".           |
++-----------------------+-----------------------+-----------------------+
+| download_dir          |                       | Specifies an          |
+|                       |                       | alternate directory   |
+| string                |                       | to store packages.    |
+|                       |                       |                       |
+| added in 2.8          |                       | Has an effect only if |
+|                       |                       | download_only is      |
+|                       |                       | specified.            |
++-----------------------+-----------------------+-----------------------+
+| download_only         | -   no ←              | Only download the     |
+|                       |                       | packages, do not      |
+| boolean               | -   yes               | install them.         |
+|                       |                       |                       |
+| added in 2.7          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| enable_plugin         |                       | Plugin name to enable |
+|                       |                       | for the               |
+| -                     |                       | install/update        |
+|                       |                       | operation. The        |
+| added in 2.7          |                       | enabled plugin will   |
+|                       |                       | not persist beyond    |
+|                       |                       | the transaction.      |
++-----------------------+-----------------------+-----------------------+
+| enablerepo            |                       | Repoid of             |
+|                       |                       | repositories to       |
+| -                     |                       | enable for the        |
+|                       |                       | install/update        |
+|                       |                       | operation. These      |
+|                       |                       | repos will not        |
+|                       |                       | persist beyond the    |
+|                       |                       | transaction. When     |
+|                       |                       | specifying multiple   |
+|                       |                       | repos, separate them  |
+|                       |                       | with a ",".           |
++-----------------------+-----------------------+-----------------------+
+| exclude               |                       | Package name(s) to    |
+|                       |                       | exclude when          |
+| -                     |                       | state=present, or     |
+|                       |                       | latest. This can be a |
+| added in 2.7          |                       | list or a comma       |
+|                       |                       | separated string.     |
++-----------------------+-----------------------+-----------------------+
+| install_repoquery     | -   no                | This is effectively a |
+|                       |                       | no-op in DNF as it is |
+| boolean               | -   yes ←             | not needed with DNF,  |
+|                       |                       | but is an accepted    |
+| added in 2.7          |                       | parameter for feature |
+|                       |                       | parity/compatibility  |
+|                       |                       | with the yum module.  |
++-----------------------+-----------------------+-----------------------+
+| install_weak_deps     | -   no                | Will also install all |
+|                       |                       | packages linked by a  |
+| boolean               | -   yes ←             | weak dependency       |
+|                       |                       | relation.             |
+| added in 2.8          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| installroot           | Default:              | Specifies an          |
+|                       |                       | alternative           |
+| -                     | "/"                   | installroot, relative |
+|                       |                       | to which all packages |
+|                       |                       | will be installed.    |
++-----------------------+-----------------------+-----------------------+
+| list                  |                       | Various               |
+|                       |                       | (non-idempotent)      |
+| -                     |                       | commands for usage    |
+|                       |                       | with /usr/bin/ansible |
+|                       |                       | and not playbooks.    |
+|                       |                       | See examples.         |
++-----------------------+-----------------------+-----------------------+
+| lock_timeout          | Default:              | Amount of time to     |
+|                       |                       | wait for the dnf      |
+| integer               | 30                    | lockfile to be freed. |
+|                       |                       |                       |
+| added in 2.8          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| name                  |                       | A package name or     |
+|                       |                       | package specifier     |
+| list /                |                       | with version, like    |
+| elements=string /     |                       | name-1.0. When using  |
+| required              |                       | state=latest, this    |
+|                       |                       | can be '*' which      |
+|                       |                       | means run: dnf -y     |
+|                       |                       | update. You can also  |
+|                       |                       | pass a url or a local |
+|                       |                       | path to a rpm file.   |
+|                       |                       | To operate on several |
+|                       |                       | packages this can     |
+|                       |                       | accept a comma        |
+|                       |                       | separated string of   |
+|                       |                       | packages or a list of |
+|                       |                       | packages.             |
+|                       |                       |                       |
+|                       |                       | aliases: pkg          |
++-----------------------+-----------------------+-----------------------+
+| releasever            |                       | Specifies an          |
+|                       |                       | alternative release   |
+| -                     |                       | from which all        |
+|                       |                       | packages will be      |
+| added in 2.6          |                       | installed.            |
++-----------------------+-----------------------+-----------------------+
+| security              | -   no ←              | If set to yes, and    |
+|                       |                       | state=latest then     |
+| boolean               | -   yes               | only installs updates |
+|                       |                       | that have been marked |
+| added in 2.7          |                       | security related.     |
+|                       |                       |                       |
+|                       |                       | Note that, similar to |
+|                       |                       | ``dnf                 |
+|                       |                       | upgrade-minimal``,    |
+|                       |                       | this filter applies   |
+|                       |                       | to dependencies as    |
+|                       |                       | well.                 |
++-----------------------+-----------------------+-----------------------+
+| skip_broken           | -   no ←              | Skip packages with    |
+|                       |                       | broken                |
+| boolean               | -   yes               | d                     |
+|                       |                       | ependencies(devsolve) |
+| added in 2.7          |                       | and are causing       |
+|                       |                       | problems.             |
++-----------------------+-----------------------+-----------------------+
+| state                 | -   absent            | Whether to install    |
+|                       | -   present           | (present, latest), or |
+| -                     | -   installed         | remove (absent) a     |
+|                       | -   removed           | package.              |
+|                       | -   latest            |                       |
+|                       |                       | Default is None,      |
+|                       |                       | however in effect the |
+|                       |                       | default action is     |
+|                       |                       | present unless the    |
+|                       |                       | autoremove option is  |
+|                       |                       | enabled for this      |
+|                       |                       | module, then absent   |
+|                       |                       | is inferred.          |
++-----------------------+-----------------------+-----------------------+
+| update_cache          | -   no ←              | Force dnf to check if |
+|                       |                       | cache is out of date  |
+| boolean               | -   yes               | and redownload if     |
+|                       |                       | needed. Has an effect |
+| added in 2.7          |                       | only if state is      |
+|                       |                       | present or latest.    |
+|                       |                       |                       |
+|                       |                       | aliases: expire-cache |
++-----------------------+-----------------------+-----------------------+
+| update_only           | -   no ←              | When using latest,    |
+|                       |                       | only update installed |
+| boolean               | -   yes               | packages. Do not      |
+|                       |                       | install packages.     |
+| added in 2.7          |                       |                       |
+|                       |                       | Has an effect only if |
+|                       |                       | state is latest       |
++-----------------------+-----------------------+-----------------------+
+| validate_certs        | -   no                | This only applies if  |
+|                       |                       | using a https url as  |
+| boolean               | -   yes ←             | the source of the     |
+|                       |                       | rpm. e.g. for         |
+| added in 2.7          |                       | localinstall. If set  |
+|                       |                       | to no, the SSL        |
+|                       |                       | certificates will not |
+|                       |                       | be validated.         |
+|                       |                       |                       |
+|                       |                       | This should only set  |
+|                       |                       | to no used on         |
+|                       |                       | personally controlled |
+|                       |                       | sites using           |
+|                       |                       | self-signed           |
+|                       |                       | certificates as it    |
+|                       |                       | avoids verifying the  |
+|                       |                       | source site.          |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   When used with a loop: each package will be processed individually,
+    it is much more efficient to pass the list directly to the name
+    option.
+
+-   Group removal doesn’t work if the group was installed with Ansible
+    because upstream dnf’s API doesn’t properly mark groups as
+    installed, therefore upon removal the module is unable to detect
+    that the group is installed
+    (https://bugzilla.redhat.com/show_bug.cgi?id=1620324)
+
+Examples¶
+
+    - name: install the latest version of Apache
+      dnf:
+        name: httpd
+        state: latest
+
+    - name: install the latest version of Apache and MariaDB
+      dnf:
+        name:
+          - httpd
+          - mariadb-server
+        state: latest
+
+    - name: remove the Apache package
+      dnf:
+        name: httpd
+        state: absent
+
+    - name: install the latest version of Apache from the testing repo
+      dnf:
+        name: httpd
+        enablerepo: testing
+        state: present
+
+    - name: upgrade all packages
+      dnf:
+        name: "*"
+        state: latest
+
+    - name: install the nginx rpm from a remote repo
+      dnf:
+        name: 'http://nginx.org/packages/centos/6/noarch/RPMS/nginx-release-centos-6-0.el6.ngx.noarch.rpm'
+        state: present
+
+    - name: install nginx rpm from a local file
+      dnf:
+        name: /usr/local/src/nginx-release-centos-6-0.el6.ngx.noarch.rpm
+        state: present
+
+    - name: install the 'Development tools' package group
+      dnf:
+        name: '@Development tools'
+        state: present
+
+    - name: Autoremove unneeded packages installed as dependencies
+      dnf:
+        autoremove: yes
+
+    - name: Uninstall httpd but keep its dependencies
+      dnf:
+        name: httpd
+        state: absent
+        autoremove: no
+
+    - name: install a modularity appstream with defined stream and profile
+      dnf:
+        name: '@postgresql:9.6/client'
+        state: present
+
+    - name: install a modularity appstream with defined stream
+      dnf:
+        name: '@postgresql:9.6'
+        state: present
+
+    - name: install a modularity appstream with defined profile
+      dnf:
+        name: '@postgresql/client'
+        state: present
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Igor Gnatenko (@ignatenkobrain) <i.gnatenko.brain@gmail.com>
+
+-   Cristian van Ee (@DJMuggs) <cristian at cvee.org>
+
+-   Berend De Schouwer (@berenddeschouwer)
+
+-   Adam Miller (@maxamillion) <admiller@redhat.com>
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

@@ -1,0 +1,147 @@
+
+import_role – Import a role into a play¶
+
+New in version 2.4.
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Much like the roles: keyword, this task loads a role, but it allows
+    you to control it when the role tasks run in between other tasks of
+    the play.
+
+-   Most keywords, loops and conditionals will only be applied to the
+    imported tasks, not to this statement itself. If you want the
+    opposite behavior, use include_role instead.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| allow_duplicates      | -   no                | Overrides the role's  |
+|                       |                       | metadata setting to   |
+| boolean               | -   yes ←             | allow using a role    |
+|                       |                       | more than once with   |
+|                       |                       | the same parameters.  |
++-----------------------+-----------------------+-----------------------+
+| defaults_from         | Default:              | File to load from a   |
+|                       |                       | role's defaults/      |
+| string                | "main"                | directory.            |
++-----------------------+-----------------------+-----------------------+
+| handlers_from         | Default:              | File to load from a   |
+|                       |                       | role's handlers/      |
+| string                | "main"                | directory.            |
+|                       |                       |                       |
+| added in 2.8          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| name                  |                       | The name of the role  |
+|                       |                       | to be executed.       |
+| string / required     |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| tasks_from            | Default:              | File to load from a   |
+|                       |                       | role's tasks/         |
+| string                | "main"                | directory.            |
++-----------------------+-----------------------+-----------------------+
+| vars_from             | Default:              | File to load from a   |
+|                       |                       | role's vars/          |
+| string                | "main"                | directory.            |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   Handlers are made available to the whole play.
+
+-   Since Ansible 2.7 variables defined in vars and defaults for the
+    role are exposed at playbook parsing time. Due to this, these
+    variables will be accessible to roles and tasks executed before the
+    location of the import_role task.
+
+-   Unlike include_role variable exposure is not configurable, and will
+    always be exposed.
+
+See Also¶
+
+See also
+
+import_playbook – Import a playbook
+
+    The official documentation on the import_playbook module.
+
+import_tasks – Import a task list
+
+    The official documentation on the import_tasks module.
+
+include_role – Load and execute a role
+
+    The official documentation on the include_role module.
+
+include_tasks – Dynamically include a task list
+
+    The official documentation on the include_tasks module.
+
+Including and Importing
+
+    More information related to including and importing playbooks, roles
+    and tasks.
+
+Examples¶
+
+    - hosts: all
+      tasks:
+        - import_role:
+            name: myrole
+
+        - name: Run tasks/other.yaml instead of 'main'
+          import_role:
+            name: myrole
+            tasks_from: other
+
+        - name: Pass variables to role
+          import_role:
+            name: myrole
+          vars:
+            rolevar1: value from task
+
+        - name: Apply condition to each task in role
+          import_role:
+            name: myrole
+          when: not idontwanttorun
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team (@ansible)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

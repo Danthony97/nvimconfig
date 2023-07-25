@@ -1,0 +1,69 @@
+-   Network Advanced Topics
+-   Network Developer Guide
+
+Ansible Galaxy
+
+-   Galaxy User Guide
+-   Galaxy Developer Guide
+
+Reference & Appendices
+
+-   Collection Index
+-   Indexes of all modules and plugins
+-   Playbook Keywords
+-   Return Values
+-   Ansible Configuration Settings
+-   Controlling how Ansible behaves: precedence rules
+-   YAML Syntax
+-   Python 3 Support
+-   Interpreter Discovery
+-   Releases and maintenance
+-   Testing Strategies
+-   Sanity Tests
+-   Frequently Asked Questions
+-   Glossary
+-   Ansible Reference: Module Utilities
+-   Special Variables
+-   Red Hat Ansible Automation Platform
+-   Ansible Automation Hub
+-   Logging Ansible output
+
+Roadmaps
+
+-   Ansible Roadmap
+-   ansible-core Roadmaps
+
+[]
+
+Ansible
+
+-   
+-   Using Ansible playbooks
+-   Working with playbooks
+-   The now function: get the current time
+-   Edit on GitHub
+
+------------------------------------------------------------------------
+
+The now function: get the current time
+
+New in version 2.8.
+
+The now() Jinja2 function retrieves a Python datetime object or a string
+representation for the current time.
+
+The now() function supports 2 arguments:
+
+utc
+
+    Specify True to get the current time in UTC. Defaults to False.
+
+fmt
+
+    Accepts a strftime string that returns a formatted date time string.
+
+Previous Next
+
+------------------------------------------------------------------------
+
+© Copyright Ansible project contributors. Last updated on Jul 18, 2023.

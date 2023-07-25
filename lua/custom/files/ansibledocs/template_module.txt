@@ -1,0 +1,475 @@
+
+template – Template a file out to a remote server¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Templates are processed by the Jinja2 templating language.
+
+-   Documentation on the template formatting can be found in the
+    Template Designer Documentation.
+
+-   Additional variables listed below can be used in templates.
+
+-   ansible_managed (configurable via the defaults section of
+    ansible.cfg) contains a string which can be used to describe the
+    template name, host, modification time of the template file and the
+    owner uid.
+
+-   template_host contains the node name of the template’s machine.
+
+-   template_uid is the numeric user id of the owner.
+
+-   template_path is the path of the template.
+
+-   template_fullpath is the absolute path of the template.
+
+-   template_destpath is the path of the template on the remote system
+    (added in 2.8).
+
+-   template_run_date is the date that the template was rendered.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| attributes            |                       | The attributes the    |
+|                       |                       | resulting file or     |
+| string                |                       | directory should      |
+|                       |                       | have.                 |
+|                       |                       |                       |
+|                       |                       | To get supported      |
+|                       |                       | flags look at the man |
+|                       |                       | page for chattr on    |
+|                       |                       | the target system.    |
+|                       |                       |                       |
+|                       |                       | This string should    |
+|                       |                       | contain the           |
+|                       |                       | attributes in the     |
+|                       |                       | same order as the one |
+|                       |                       | displayed by lsattr.  |
+|                       |                       |                       |
+|                       |                       | The = operator is     |
+|                       |                       | assumed as default,   |
+|                       |                       | otherwise + or -      |
+|                       |                       | operators need to be  |
+|                       |                       | included in the       |
+|                       |                       | string.               |
+|                       |                       |                       |
+|                       |                       | aliases: attr         |
++-----------------------+-----------------------+-----------------------+
+| backup                | -   no ←              | Create a backup file  |
+|                       |                       | including the         |
+| boolean               | -   yes               | timestamp information |
+|                       |                       | so you can get the    |
+|                       |                       | original file back if |
+|                       |                       | you somehow clobbered |
+|                       |                       | it incorrectly.       |
++-----------------------+-----------------------+-----------------------+
+| block_end_string      | Default:              | The string marking    |
+|                       |                       | the end of a block.   |
+| string                | "%}"                  |                       |
+|                       |                       |                       |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| block_start_string    | Default:              | The string marking    |
+|                       |                       | the beginning of a    |
+| string                | "{%"                  | block.                |
+|                       |                       |                       |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| dest                  |                       | Location to render    |
+|                       |                       | the template to on    |
+| path / required       |                       | the remote machine.   |
++-----------------------+-----------------------+-----------------------+
+| follow                | -   no ←              | Determine whether     |
+|                       |                       | symbolic links should |
+| boolean               | -   yes               | be followed.          |
+|                       |                       |                       |
+| added in 2.4          |                       | When set to yes       |
+|                       |                       | symbolic links will   |
+|                       |                       | be followed, if they  |
+|                       |                       | exist.                |
+|                       |                       |                       |
+|                       |                       | When set to no        |
+|                       |                       | symbolic links will   |
+|                       |                       | not be followed.      |
+|                       |                       |                       |
+|                       |                       | Previous to Ansible   |
+|                       |                       | 2.4, this was         |
+|                       |                       | hardcoded as yes.     |
++-----------------------+-----------------------+-----------------------+
+| force                 | -   no                | Determine when the    |
+|                       |                       | file is being         |
+| boolean               | -   yes ←             | transferred if the    |
+|                       |                       | destination already   |
+|                       |                       | exists.               |
+|                       |                       |                       |
+|                       |                       | When set to yes,      |
+|                       |                       | replace the remote    |
+|                       |                       | file when contents    |
+|                       |                       | are different than    |
+|                       |                       | the source.           |
+|                       |                       |                       |
+|                       |                       | When set to no, the   |
+|                       |                       | file will only be     |
+|                       |                       | transferred if the    |
+|                       |                       | destination does not  |
+|                       |                       | exist.                |
++-----------------------+-----------------------+-----------------------+
+| group                 |                       | Name of the group     |
+|                       |                       | that should own the   |
+| string                |                       | file/directory, as    |
+|                       |                       | would be fed to       |
+|                       |                       | chown.                |
++-----------------------+-----------------------+-----------------------+
+| lstrip_blocks         | -   no ←              | Determine when        |
+|                       |                       | leading spaces and    |
+| boolean               | -   yes               | tabs should be        |
+|                       |                       | stripped.             |
+| added in 2.6          |                       |                       |
+|                       |                       | When set to yes       |
+|                       |                       | leading spaces and    |
+|                       |                       | tabs are stripped     |
+|                       |                       | from the start of a   |
+|                       |                       | line to a block.      |
+|                       |                       |                       |
+|                       |                       | This functionality    |
+|                       |                       | requires Jinja 2.7 or |
+|                       |                       | newer.                |
++-----------------------+-----------------------+-----------------------+
+| mode                  |                       | The permissions the   |
+|                       |                       | resulting file or     |
+| string                |                       | directory should      |
+|                       |                       | have.                 |
+|                       |                       |                       |
+|                       |                       | For those used to     |
+|                       |                       | /usr/bin/chmod        |
+|                       |                       | remember that modes   |
+|                       |                       | are actually octal    |
+|                       |                       | numbers. You must     |
+|                       |                       | either add a leading  |
+|                       |                       | zero so that          |
+|                       |                       | Ansible's YAML parser |
+|                       |                       | knows it is an octal  |
+|                       |                       | number (like 0644 or  |
+|                       |                       | 01777) or quote it    |
+|                       |                       | (like '644' or        |
+|                       |                       | '1777') so Ansible    |
+|                       |                       | receives a string and |
+|                       |                       | can do its own        |
+|                       |                       | conversion from       |
+|                       |                       | string into number.   |
+|                       |                       |                       |
+|                       |                       | Giving Ansible a      |
+|                       |                       | number without        |
+|                       |                       | following one of      |
+|                       |                       | these rules will end  |
+|                       |                       | up with a decimal     |
+|                       |                       | number which will     |
+|                       |                       | have unexpected       |
+|                       |                       | results.              |
+|                       |                       |                       |
+|                       |                       | As of Ansible 1.8,    |
+|                       |                       | the mode may be       |
+|                       |                       | specified as a        |
+|                       |                       | symbolic mode (for    |
+|                       |                       | example, u+rwx or     |
+|                       |                       | u=rw,g=r,o=r).        |
++-----------------------+-----------------------+-----------------------+
+| newline_sequence      | -   \n ←              | Specify the newline   |
+|                       |                       | sequence to use for   |
+| string                | -   \r                | templating files.     |
+|                       |                       |                       |
+| added in 2.4          | -   \r\n              |                       |
++-----------------------+-----------------------+-----------------------+
+| output_encoding       | Default:              | Overrides the         |
+|                       |                       | encoding used to      |
+| string                | "utf-8"               | write the template    |
+|                       |                       | file defined by dest. |
+| added in 2.7          |                       |                       |
+|                       |                       | It defaults to utf-8, |
+|                       |                       | but any encoding      |
+|                       |                       | supported by python   |
+|                       |                       | can be used.          |
+|                       |                       |                       |
+|                       |                       | The source template   |
+|                       |                       | file must always be   |
+|                       |                       | encoded using utf-8,  |
+|                       |                       | for homogeneity.      |
++-----------------------+-----------------------+-----------------------+
+| owner                 |                       | Name of the user that |
+|                       |                       | should own the        |
+| string                |                       | file/directory, as    |
+|                       |                       | would be fed to       |
+|                       |                       | chown.                |
++-----------------------+-----------------------+-----------------------+
+| selevel               | Default:              | The level part of the |
+|                       |                       | SELinux file context. |
+| string                | "s0"                  |                       |
+|                       |                       | This is the MLS/MCS   |
+|                       |                       | attribute, sometimes  |
+|                       |                       | known as the range.   |
+|                       |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the level |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| serole                |                       | The role part of the  |
+|                       |                       | SELinux file context. |
+| string                |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the role  |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| setype                |                       | The type part of the  |
+|                       |                       | SELinux file context. |
+| string                |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the type  |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| seuser                |                       | The user part of the  |
+|                       |                       | SELinux file context. |
+| string                |                       |                       |
+|                       |                       | By default it uses    |
+|                       |                       | the system policy,    |
+|                       |                       | where applicable.     |
+|                       |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the user  |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| src                   |                       | Path of a Jinja2      |
+|                       |                       | formatted template on |
+| path / required       |                       | the Ansible           |
+|                       |                       | controller.           |
+|                       |                       |                       |
+|                       |                       | This can be a         |
+|                       |                       | relative or an        |
+|                       |                       | absolute path.        |
+|                       |                       |                       |
+|                       |                       | The file must be      |
+|                       |                       | encoded with utf-8    |
+|                       |                       | but output_encoding   |
+|                       |                       | can be used to        |
+|                       |                       | control the encoding  |
+|                       |                       | of the output         |
+|                       |                       | template.             |
++-----------------------+-----------------------+-----------------------+
+| trim_blocks           | -   no                | Determine when        |
+|                       |                       | newlines should be    |
+| boolean               | -   yes ←             | removed from blocks.  |
+|                       |                       |                       |
+| added in 2.4          |                       | When set to yes the   |
+|                       |                       | first newline after a |
+|                       |                       | block is removed      |
+|                       |                       | (block, not variable  |
+|                       |                       | tag!).                |
++-----------------------+-----------------------+-----------------------+
+| unsafe_writes         | -   no ←              | Influence when to use |
+|                       |                       | atomic operation to   |
+| boolean               | -   yes               | prevent data          |
+|                       |                       | corruption or         |
+|                       |                       | inconsistent reads    |
+|                       |                       | from the target file. |
+|                       |                       |                       |
+|                       |                       | By default this       |
+|                       |                       | module uses atomic    |
+|                       |                       | operations to prevent |
+|                       |                       | data corruption or    |
+|                       |                       | inconsistent reads    |
+|                       |                       | from the target       |
+|                       |                       | files, but sometimes  |
+|                       |                       | systems are           |
+|                       |                       | configured or just    |
+|                       |                       | broken in ways that   |
+|                       |                       | prevent this. One     |
+|                       |                       | example is docker     |
+|                       |                       | mounted files, which  |
+|                       |                       | cannot be updated     |
+|                       |                       | atomically from       |
+|                       |                       | inside the container  |
+|                       |                       | and can only be       |
+|                       |                       | written in an unsafe  |
+|                       |                       | manner.               |
+|                       |                       |                       |
+|                       |                       | This option allows    |
+|                       |                       | Ansible to fall back  |
+|                       |                       | to unsafe methods of  |
+|                       |                       | updating files when   |
+|                       |                       | atomic operations     |
+|                       |                       | fail (however, it     |
+|                       |                       | doesn't force Ansible |
+|                       |                       | to perform unsafe     |
+|                       |                       | writes).              |
+|                       |                       |                       |
+|                       |                       | IMPORTANT! Unsafe     |
+|                       |                       | writes are subject to |
+|                       |                       | race conditions and   |
+|                       |                       | can lead to data      |
+|                       |                       | corruption.           |
++-----------------------+-----------------------+-----------------------+
+| validate              |                       | The validation        |
+|                       |                       | command to run before |
+| string                |                       | copying into place.   |
+|                       |                       |                       |
+|                       |                       | The path to the file  |
+|                       |                       | to validate is passed |
+|                       |                       | in via '%s' which     |
+|                       |                       | must be present as in |
+|                       |                       | the examples below.   |
+|                       |                       |                       |
+|                       |                       | The command is passed |
+|                       |                       | securely so shell     |
+|                       |                       | features like         |
+|                       |                       | expansion and pipes   |
+|                       |                       | will not work.        |
++-----------------------+-----------------------+-----------------------+
+| variable_end_string   | Default:              | The string marking    |
+|                       |                       | the end of a print    |
+| string                | "}}"                  | statement.            |
+|                       |                       |                       |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| variable_start_string | Default:              | The string marking    |
+|                       |                       | the beginning of a    |
+| string                | "{{"                  | print statement.      |
+|                       |                       |                       |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   You can use the copy module with the content: option if you prefer
+    the template inline, as part of the playbook.
+
+-   For Windows you can use win_template which uses ‘\r\n’ as
+    newline_sequence by default.
+
+-   Including a string that uses a date in the template will result in
+    the template being marked ‘changed’ each time.
+
+-   Since Ansible 0.9, templates are loaded with trim_blocks=True.
+
+-   Also, you can override jinja2 settings by adding a special header to
+    template file. i.e.
+    #jinja2:variable_start_string:'[%', variable_end_string:'%]', trim_blocks: False
+    which changes the variable interpolation markers to [% var %]
+    instead of {{ var }}. This is the best way to prevent evaluation of
+    things that look like, but should not be Jinja2.
+
+-   Using raw/endraw in Jinja2 will not work as you expect because
+    templates in Ansible are recursively evaluated.
+
+-   To find Byte Order Marks in files, use Format-Hex <file> -Count 16
+    on Windows, and use od -a -t x1 -N 16 <file> on Linux.
+
+See Also¶
+
+See also
+
+copy – Copy files to remote locations
+
+    The official documentation on the copy module.
+
+win_copy – Copies files to remote locations on windows hosts
+
+    The official documentation on the win_copy module.
+
+win_template – Template a file out to a remote server
+
+    The official documentation on the win_template module.
+
+Examples¶
+
+    - name: Template a file to /etc/files.conf
+      template:
+        src: /mytemplates/foo.j2
+        dest: /etc/file.conf
+        owner: bin
+        group: wheel
+        mode: '0644'
+
+    - name: Template a file, using symbolic modes (equivalent to 0644)
+      template:
+        src: /mytemplates/foo.j2
+        dest: /etc/file.conf
+        owner: bin
+        group: wheel
+        mode: u=rw,g=r,o=r
+
+    - name: Copy a version of named.conf that is dependent on the OS. setype obtained by doing ls -Z /etc/named.conf on original file
+      template:
+        src: named.conf_{{ ansible_os_family }}.j2
+        dest: /etc/named.conf
+        group: named
+        setype: named_conf_t
+        mode: 0640
+
+    - name: Create a DOS-style text file from a template
+      template:
+        src: config.ini.j2
+        dest: /share/windows/config.ini
+        newline_sequence: '\r\n'
+
+    - name: Copy a new sudoers file into place, after passing validation with visudo
+      template:
+        src: /mine/sudoers
+        dest: /etc/sudoers
+        validate: /usr/sbin/visudo -cf %s
+
+    - name: Update sshd configuration safely, avoid locking yourself out
+      template:
+        src: etc/ssh/sshd_config.j2
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: '0600'
+        validate: /usr/sbin/sshd -t -f %s
+        backup: yes
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team
+
+-   Michael DeHaan
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

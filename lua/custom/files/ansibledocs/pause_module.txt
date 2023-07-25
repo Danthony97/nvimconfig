@@ -1,0 +1,169 @@
+
+pause – Pause playbook execution¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   Examples
+
+-   Return Values
+
+-   Status
+
+Synopsis¶
+
+-   Pauses playbook execution for a set amount of time, or until a
+    prompt is acknowledged. All parameters are optional. The default
+    behavior is to pause with a prompt.
+
+-   To pause/wait/sleep per host, use the wait_for module.
+
+-   You can use ctrl+c if you wish to advance a pause earlier than it is
+    set to expire or if you need to abort a playbook run entirely. To
+    continue early press ctrl+c and then c. To abort a playbook press
+    ctrl+c and then a.
+
+-   The pause module integrates into async/parallelized playbooks
+    without any special considerations (see Rolling Updates). When using
+    pauses with the serial playbook parameter (as in rolling updates)
+    you are only prompted once for the current group of hosts.
+
+-   This module is also supported for Windows targets.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| echo                  | -   no                | Controls whether or   |
+|                       |                       | not keyboard input is |
+| boolean               | -   yes ←             | shown when typing.    |
+|                       |                       |                       |
+| added in 2.5          |                       | Has no effect if      |
+|                       |                       | 'seconds' or          |
+|                       |                       | 'minutes' is set.     |
++-----------------------+-----------------------+-----------------------+
+| minutes               |                       | A positive number of  |
+|                       |                       | minutes to pause for. |
+| -                     |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| prompt                |                       | Optional text to use  |
+|                       |                       | for the prompt        |
+| -                     |                       | message.              |
++-----------------------+-----------------------+-----------------------+
+| seconds               |                       | A positive number of  |
+|                       |                       | seconds to pause for. |
+| -                     |                       |                       |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   Starting in 2.2, if you specify 0 or negative for minutes or
+    seconds, it will wait for 1 second, previously it would wait
+    indefinitely.
+
+-   This module is also supported for Windows targets.
+
+-   User input is not captured or echoed, regardless of echo setting,
+    when minutes or seconds is specified.
+
+Examples¶
+
+    # Pause for 5 minutes to build app cache.
+    - pause:
+        minutes: 5
+
+    # Pause until you can verify updates to an application were successful.
+    - pause:
+
+    # A helpful reminder of what to look out for post-update.
+    - pause:
+        prompt: "Make sure org.foo.FooOverload exception is not present"
+
+    # Pause to get some sensitive input.
+    - pause:
+        prompt: "Enter a secret"
+        echo: no
+
+Return Values¶
+
+Common return values are documented here, the following are the fields
+unique to this module:
+
++-----------------------+-----------------------+-----------------------+
+| Key                   | Returned              | Description           |
++=======================+=======================+=======================+
+| delta                 | always                | Time paused in        |
+|                       |                       | seconds               |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 2                     |
++-----------------------+-----------------------+-----------------------+
+| echo                  | always                | Value of echo setting |
+|                       |                       |                       |
+| boolean               |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | True                  |
++-----------------------+-----------------------+-----------------------+
+| start                 | always                | Time when started     |
+|                       |                       | pausing               |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 2017-02-23            |
+|                       |                       | 14:35:07.298862       |
++-----------------------+-----------------------+-----------------------+
+| stdout                | always                | Output of pause       |
+|                       |                       | module                |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | Paused for 0.04       |
+|                       |                       | minutes               |
++-----------------------+-----------------------+-----------------------+
+| stop                  | always                | Time when ended       |
+|                       |                       | pausing               |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 2017-02-23            |
+|                       |                       | 14:35:09.552594       |
++-----------------------+-----------------------+-----------------------+
+| user_input            | if no waiting time    | User input from       |
+|                       | set                   | interactive console   |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | Example user input    |
++-----------------------+-----------------------+-----------------------+
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Tim Bielawa (@tbielawa)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

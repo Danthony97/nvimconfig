@@ -1,0 +1,129 @@
+
+group – Add or remove groups¶
+
+-   Synopsis
+
+-   Requirements
+
+-   Parameters
+
+-   See Also
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Manage presence of groups on a host.
+
+-   For Windows targets, use the win_group module instead.
+
+Requirements¶
+
+The below requirements are needed on the host that executes this module.
+
+-   groupadd
+
+-   groupdel
+
+-   groupmod
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| gid                   |                       | Optional GID to set   |
+|                       |                       | for the group.        |
+| integer               |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| local                 | -   no ←              | Forces the use of     |
+|                       |                       | "local" command       |
+| boolean               | -   yes               | alternatives on       |
+|                       |                       | platforms that        |
+| added in 2.6          |                       | implement it.         |
+|                       |                       |                       |
+|                       |                       | This is useful in     |
+|                       |                       | environments that use |
+|                       |                       | centralized           |
+|                       |                       | authentication when   |
+|                       |                       | you want to           |
+|                       |                       | manipulate the local  |
+|                       |                       | groups. (e.g. it uses |
+|                       |                       | lgroupadd instead of  |
+|                       |                       | groupadd).            |
+|                       |                       |                       |
+|                       |                       | This requires that    |
+|                       |                       | these commands exist  |
+|                       |                       | on the targeted host, |
+|                       |                       | otherwise it will be  |
+|                       |                       | a fatal error.        |
++-----------------------+-----------------------+-----------------------+
+| name                  |                       | Name of the group to  |
+|                       |                       | manage.               |
+| string / required     |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| non_unique            | -   no ←              | This option allows to |
+|                       |                       | change the group ID   |
+| boolean               | -   yes               | to a non-unique       |
+|                       |                       | value. Requires gid.  |
+| added in 2.8          |                       |                       |
+|                       |                       | Not supported on      |
+|                       |                       | macOS or BusyBox      |
+|                       |                       | distributions.        |
++-----------------------+-----------------------+-----------------------+
+| state                 | -   absent            | Whether the group     |
+|                       |                       | should be present or  |
+| string                | -   present ←         | not on the remote     |
+|                       |                       | host.                 |
++-----------------------+-----------------------+-----------------------+
+| system                | -   no ←              | If yes, indicates     |
+|                       |                       | that the group        |
+| boolean               | -   yes               | created is a system   |
+|                       |                       | group.                |
++-----------------------+-----------------------+-----------------------+
+
+See Also¶
+
+See also
+
+user – Manage user accounts
+
+    The official documentation on the user module.
+
+win_group – Add and remove local groups
+
+    The official documentation on the win_group module.
+
+Examples¶
+
+    - name: Ensure group "somegroup" exists
+      group:
+        name: somegroup
+        state: present
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Stephen Fromm (@sfromm)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

@@ -1,0 +1,130 @@
+
+getent – A wrapper to the unix getent utility¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Runs getent against one of it’s various databases and returns
+    information into the host’s facts, in a getent_<database> prefixed
+    variable.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| database              |                       | The name of a getent  |
+|                       |                       | database supported by |
+| - / required          |                       | the target system     |
+|                       |                       | (passwd, group,       |
+|                       |                       | hosts, etc).          |
++-----------------------+-----------------------+-----------------------+
+| fail_key              | -   no                | If a supplied key is  |
+|                       |                       | missing this will     |
+| boolean               | -   yes ←             | make the task fail if |
+|                       |                       | yes.                  |
++-----------------------+-----------------------+-----------------------+
+| key                   | Default:              | Key from which to     |
+|                       |                       | return values from    |
+| -                     | ""                    | the specified         |
+|                       |                       | database, otherwise   |
+|                       |                       | the full contents are |
+|                       |                       | returned.             |
++-----------------------+-----------------------+-----------------------+
+| service               |                       | Override all          |
+|                       |                       | databases with the    |
+| -                     |                       | specified service     |
+|                       |                       |                       |
+| added in 2.9          |                       | The underlying system |
+|                       |                       | must support the      |
+|                       |                       | service flag which is |
+|                       |                       | not always available. |
++-----------------------+-----------------------+-----------------------+
+| split                 |                       | Character used to     |
+|                       |                       | split the database    |
+| -                     |                       | values into           |
+|                       |                       | lists/arrays such as  |
+|                       |                       | ':' or ' ', otherwise |
+|                       |                       | it will try to pick   |
+|                       |                       | one depending on the  |
+|                       |                       | database.             |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   Not all databases support enumeration, check system documentation
+    for details.
+
+Examples¶
+
+    # get root user info
+    - getent:
+        database: passwd
+        key: root
+    - debug:
+        var: getent_passwd
+
+    # get all groups
+    - getent:
+        database: group
+        split: ':'
+    - debug:
+        var: getent_group
+
+    # get all hosts, split by tab
+    - getent:
+        database: hosts
+    - debug:
+        var: getent_hosts
+
+    # get http service info, no error if missing
+    - getent:
+        database: services
+        key: http
+        fail_key: False
+    - debug:
+        var: getent_services
+
+    # get user password hash (requires sudo/root)
+    - getent:
+        database: shadow
+        key: www-data
+        split: ':'
+    - debug:
+        var: getent_shadow
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Brian Coca (@bcoca)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

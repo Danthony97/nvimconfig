@@ -1,0 +1,135 @@
+
+service_facts – Return service state information as fact data¶
+
+New in version 2.5.
+
+-   Synopsis
+
+-   Requirements
+
+-   Notes
+
+-   Examples
+
+-   Returned Facts
+
+-   Status
+
+Synopsis¶
+
+-   Return service state information as fact data for various service
+    management utilities
+
+Requirements¶
+
+The below requirements are needed on the host that executes this module.
+
+-   Any of the following supported init systems: systemd, sysv, upstart
+
+Notes¶
+
+Note
+
+-   When accessing the ansible_facts.services facts collected by this
+    module, it is recommended to not use “dot notation” because services
+    can have a - character in their name which would result in invalid
+    “dot notation”, such as ansible_facts.services.zuul-gateway. It is
+    instead recommended to using the string value of the service name as
+    the key in order to obtain the fact data value like
+    ansible_facts.services['zuul-gateway']
+
+Examples¶
+
+    - name: Populate service facts
+      service_facts:
+
+    - debug:
+        var: ansible_facts.services
+
+Returned Facts¶
+
+Facts returned by this module are added/updated in the hostvars host
+facts and can be referenced by name just like any other host fact. They
+do not need to be registered in order to use them.
+
+Fact
+
+Returned
+
+Description
+
+services
+
+complex
+
+always
+
+States of the services with service name as key.
+
+name
+
+string
+
+always
+
+Name of the service.
+
+Sample:
+
+arp-ethers.service
+
+source
+
+string
+
+always
+
+Init system of the service. One of systemd, sysv, upstart.
+
+Sample:
+
+sysv
+
+state
+
+string
+
+always
+
+State of the service. Either running, stopped, or unknown.
+
+Sample:
+
+running
+
+status
+
+string
+
+systemd systems or RedHat/SUSE flavored sysvinit/upstart
+
+State of the service. Either enabled, disabled, or unknown.
+
+Sample:
+
+enabled
+
+Status¶
+
+-   This module is not guaranteed to have a backwards compatible
+    interface. [preview]
+
+-   This module is maintained by the Ansible Community. [community]
+
+Authors¶
+
+-   Adam Miller (@maxamillion)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

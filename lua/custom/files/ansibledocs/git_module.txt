@@ -1,0 +1,394 @@
+
+git – Deploy software (or files) from git checkouts¶
+
+-   Synopsis
+
+-   Requirements
+
+-   Parameters
+
+-   Notes
+
+-   Examples
+
+-   Return Values
+
+-   Status
+
+Synopsis¶
+
+-   Manage git checkouts of repositories to deploy files or software.
+
+Requirements¶
+
+The below requirements are needed on the host that executes this module.
+
+-   git>=1.7.1 (the command line tool)
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| accept_hostkey        | -   no ←              | if yes, ensure that   |
+|                       |                       | "-o                   |
+| boolean               | -   yes               | Stri                  |
+|                       |                       | ctHostKeyChecking=no" |
+|                       |                       | is present as an ssh  |
+|                       |                       | option.               |
++-----------------------+-----------------------+-----------------------+
+| archive               |                       | Specify archive file  |
+|                       |                       | path with extension.  |
+| -                     |                       | If specified, creates |
+|                       |                       | an archive file of    |
+| added in 2.4          |                       | the specified format  |
+|                       |                       | containing the tree   |
+|                       |                       | structure for the     |
+|                       |                       | source tree. Allowed  |
+|                       |                       | archive formats       |
+|                       |                       | ["zip", "tar.gz",     |
+|                       |                       | "tar", "tgz"]         |
+|                       |                       |                       |
+|                       |                       | This will clone and   |
+|                       |                       | perform git archive   |
+|                       |                       | from local directory  |
+|                       |                       | as not all git        |
+|                       |                       | servers support git   |
+|                       |                       | archive.              |
++-----------------------+-----------------------+-----------------------+
+| bare                  | -   no ←              | if yes, repository    |
+|                       |                       | will be created as a  |
+| boolean               | -   yes               | bare repo, otherwise  |
+|                       |                       | it will be a standard |
+|                       |                       | repo with a           |
+|                       |                       | workspace.            |
++-----------------------+-----------------------+-----------------------+
+| clone                 | -   no                | If no, do not clone   |
+|                       |                       | the repository even   |
+| boolean               | -   yes ←             | if it does not exist  |
+|                       |                       | locally               |
++-----------------------+-----------------------+-----------------------+
+| depth                 |                       | Create a shallow      |
+|                       |                       | clone with a history  |
+| -                     |                       | truncated to the      |
+|                       |                       | specified number or   |
+|                       |                       | revisions. The        |
+|                       |                       | minimum possible      |
+|                       |                       | value is 1, otherwise |
+|                       |                       | ignored. Needs        |
+|                       |                       | git>=1.9.1 to work    |
+|                       |                       | correctly.            |
++-----------------------+-----------------------+-----------------------+
+| dest                  |                       | The path of where the |
+|                       |                       | repository should be  |
+| - / required          |                       | checked out. This     |
+|                       |                       | parameter is          |
+|                       |                       | required, unless      |
+|                       |                       | clone is set to no.   |
++-----------------------+-----------------------+-----------------------+
+| executable            |                       | Path to git           |
+|                       |                       | executable to use. If |
+| -                     |                       | not supplied, the     |
+|                       |                       | normal mechanism for  |
+|                       |                       | resolving binary      |
+|                       |                       | paths will be used.   |
++-----------------------+-----------------------+-----------------------+
+| force                 | -   no ←              | If yes, any modified  |
+|                       |                       | files in the working  |
+| boolean               | -   yes               | repository will be    |
+|                       |                       | discarded. Prior to   |
+|                       |                       | 0.7, this was always  |
+|                       |                       | 'yes' and could not   |
+|                       |                       | be disabled. Prior to |
+|                       |                       | 1.9, the default was  |
+|                       |                       | `yes`                 |
++-----------------------+-----------------------+-----------------------+
+| gpg_whitelist         | Default:              | A list of trusted GPG |
+|                       |                       | fingerprints to       |
+| list                  | []                    | compare to the        |
+|                       |                       | fingerprint of the    |
+| added in 2.9          |                       | GPG-signed commit.    |
+|                       |                       |                       |
+|                       |                       | Only used when        |
+|                       |                       | verify_commit=yes.    |
++-----------------------+-----------------------+-----------------------+
+| key_file              |                       | Specify an optional   |
+|                       |                       | private key file      |
+| -                     |                       | path, on the target   |
+|                       |                       | host, to use for the  |
+|                       |                       | checkout.             |
++-----------------------+-----------------------+-----------------------+
+| recursive             | -   no                | if no, repository     |
+|                       |                       | will be cloned        |
+| boolean               | -   yes ←             | without the           |
+|                       |                       | --recursive option,   |
+|                       |                       | skipping sub-modules. |
++-----------------------+-----------------------+-----------------------+
+| reference             |                       | Reference repository  |
+|                       |                       | (see "git clone       |
+| -                     |                       | --reference ...")     |
++-----------------------+-----------------------+-----------------------+
+| refspec               |                       | Add an additional     |
+|                       |                       | refspec to be         |
+| -                     |                       | fetched. If version   |
+|                       |                       | is set to a SHA-1 not |
+|                       |                       | reachable from any    |
+|                       |                       | branch or tag, this   |
+|                       |                       | option may be         |
+|                       |                       | necessary to specify  |
+|                       |                       | the ref containing    |
+|                       |                       | the SHA-1. Uses the   |
+|                       |                       | same syntax as the    |
+|                       |                       | 'git fetch' command.  |
+|                       |                       | An example value      |
+|                       |                       | could be              |
+|                       |                       | "refs/meta/config".   |
++-----------------------+-----------------------+-----------------------+
+| remote                | Default:              | Name of the remote.   |
+|                       |                       |                       |
+| -                     | "origin"              |                       |
++-----------------------+-----------------------+-----------------------+
+| repo                  |                       | git, SSH, or HTTP(S)  |
+|                       |                       | protocol address of   |
+| - / required          |                       | the git repository.   |
+|                       |                       |                       |
+|                       |                       | aliases: name         |
++-----------------------+-----------------------+-----------------------+
+| separate_git_dir      |                       | The path to place the |
+|                       |                       | cloned repository. If |
+| -                     |                       | specified, Git        |
+|                       |                       | repository can be     |
+| added in 2.7          |                       | separated from        |
+|                       |                       | working tree.         |
++-----------------------+-----------------------+-----------------------+
+| ssh_opts              |                       | Creates a wrapper     |
+|                       |                       | script and exports    |
+| -                     |                       | the path as GIT_SSH   |
+|                       |                       | which git then        |
+|                       |                       | automatically uses to |
+|                       |                       | override ssh          |
+|                       |                       | arguments. An example |
+|                       |                       | value could be "-o    |
+|                       |                       | Stri                  |
+|                       |                       | ctHostKeyChecking=no" |
+|                       |                       | (although this        |
+|                       |                       | particular option is  |
+|                       |                       | better set via        |
+|                       |                       | accept_hostkey).      |
++-----------------------+-----------------------+-----------------------+
+| track_submodules      | -   no ←              | if yes, submodules    |
+|                       |                       | will track the latest |
+| boolean               | -   yes               | commit on their       |
+|                       |                       | master branch (or     |
+|                       |                       | other branch          |
+|                       |                       | specified in          |
+|                       |                       | .gitmodules). If no,  |
+|                       |                       | submodules will be    |
+|                       |                       | kept at the revision  |
+|                       |                       | specified by the main |
+|                       |                       | project. This is      |
+|                       |                       | equivalent to         |
+|                       |                       | specifying the        |
+|                       |                       | --remote flag to git  |
+|                       |                       | submodule update.     |
++-----------------------+-----------------------+-----------------------+
+| umask                 |                       | The umask to set      |
+|                       |                       | before doing any      |
+| -                     |                       | checkouts, or any     |
+|                       |                       | other repository      |
+|                       |                       | maintenance.          |
++-----------------------+-----------------------+-----------------------+
+| update                | -   no                | If no, do not         |
+|                       |                       | retrieve new          |
+| boolean               | -   yes ←             | revisions from the    |
+|                       |                       | origin repository     |
+|                       |                       |                       |
+|                       |                       | Operations like       |
+|                       |                       | archive will work on  |
+|                       |                       | the existing (old)    |
+|                       |                       | repository and might  |
+|                       |                       | not respond to        |
+|                       |                       | changes to the        |
+|                       |                       | options version or    |
+|                       |                       | remote.               |
++-----------------------+-----------------------+-----------------------+
+| verify_commit         | -   no ←              | if yes, when cloning  |
+|                       |                       | or checking out a     |
+| boolean               | -   yes               | version verify the    |
+|                       |                       | signature of a GPG    |
+|                       |                       | signed commit. This   |
+|                       |                       | requires git          |
+|                       |                       | version>=2.1.0 to be  |
+|                       |                       | installed. The commit |
+|                       |                       | MUST be signed and    |
+|                       |                       | the public key MUST   |
+|                       |                       | be present in the GPG |
+|                       |                       | keyring.              |
++-----------------------+-----------------------+-----------------------+
+| version               | Default:              | What version of the   |
+|                       |                       | repository to check   |
+| -                     | "HEAD"                | out. This can be the  |
+|                       |                       | literal string HEAD,  |
+|                       |                       | a branch name, a tag  |
+|                       |                       | name. It can also be  |
+|                       |                       | a SHA-1 hash, in      |
+|                       |                       | which case refspec    |
+|                       |                       | needs to be specified |
+|                       |                       | if the given revision |
+|                       |                       | is not already        |
+|                       |                       | available.            |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   If the task seems to be hanging, first verify remote host is in
+    known_hosts. SSH will prompt user to authorize the first contact
+    with a remote host. To avoid this prompt, one solution is to use the
+    option accept_hostkey. Another solution is to add the remote host
+    public key in /etc/ssh/ssh_known_hosts before calling the git
+    module, with the following command: ssh-keyscan -H
+    remote_host.com >> /etc/ssh/ssh_known_hosts.
+
+Examples¶
+
+    # Example git checkout from Ansible Playbooks
+    - git:
+        repo: 'https://foosball.example.org/path/to/repo.git'
+        dest: /srv/checkout
+        version: release-0.22
+
+    # Example read-write git checkout from github
+    - git:
+        repo: [email protected]:mylogin/hello.git
+        dest: /home/mylogin/hello
+
+    # Example just ensuring the repo checkout exists
+    - git:
+        repo: 'https://foosball.example.org/path/to/repo.git'
+        dest: /srv/checkout
+        update: no
+
+    # Example just get information about the repository whether or not it has
+    # already been cloned locally.
+    - git:
+        repo: 'https://foosball.example.org/path/to/repo.git'
+        dest: /srv/checkout
+        clone: no
+        update: no
+
+    # Example checkout a github repo and use refspec to fetch all pull requests
+    - git:
+        repo: https://github.com/ansible/ansible-examples.git
+        dest: /src/ansible-examples
+        refspec: '+refs/pull/*:refs/heads/*'
+
+    # Example Create git archive from repo
+    - git:
+        repo: https://github.com/ansible/ansible-examples.git
+        dest: /src/ansible-examples
+        archive: /tmp/ansible-examples.zip
+
+    # Example clone a repo with separate git directory
+    - git:
+        repo: https://github.com/ansible/ansible-examples.git
+        dest: /src/ansible-examples
+        separate_git_dir: /src/ansible-examples.git
+
+Return Values¶
+
+Common return values are documented here, the following are the fields
+unique to this module:
+
++-----------------------+-----------------------+-----------------------+
+| Key                   | Returned              | Description           |
++=======================+=======================+=======================+
+| after                 | success               | last commit revision  |
+|                       |                       | of the repository     |
+| string                |                       | retrieved during the  |
+|                       |                       | update                |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 4c020102a9cd6fe908c   |
+|                       |                       | 9a4a326a38f972f63a903 |
++-----------------------+-----------------------+-----------------------+
+| before                | success               | commit revision       |
+|                       |                       | before the repository |
+| string                |                       | was updated, "null"   |
+|                       |                       | for new repository    |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 67c04ebe40a003bda0e   |
+|                       |                       | fb34eacfb93b0cafdf628 |
++-----------------------+-----------------------+-----------------------+
+| git_dir_before        | success               | Contains the original |
+|                       |                       | path of .git          |
+| string                |                       | directory if it's     |
+|                       |                       | changed               |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | /path/to/old/git/dir  |
++-----------------------+-----------------------+-----------------------+
+| git_dir_now           | success               | Contains the new path |
+|                       |                       | of .git directory if  |
+| string                |                       | it's changed          |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | /path/to/new/git/dir  |
++-----------------------+-----------------------+-----------------------+
+| remote_url_changed    | success               | Contains True or      |
+|                       |                       | False whether or not  |
+| boolean               |                       | the remote URL was    |
+|                       |                       | changed.              |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | True                  |
++-----------------------+-----------------------+-----------------------+
+| warnings              | error                 | List of warnings if   |
+|                       |                       | requested features    |
+| string                |                       | were not available    |
+|                       |                       | due to a too old git  |
+|                       |                       | version.              |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | Your git version is   |
+|                       |                       | too old to fully      |
+|                       |                       | support the depth     |
+|                       |                       | argument. Falling     |
+|                       |                       | back to full          |
+|                       |                       | checkouts.            |
++-----------------------+-----------------------+-----------------------+
+
+Status¶
+
+-   This module is not guaranteed to have a backwards compatible
+    interface. [preview]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team
+
+-   Michael DeHaan
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

@@ -1,0 +1,99 @@
+
+rpm_key – Adds or removes a gpg key from the rpm db¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Adds or removes (rpm –import) a gpg key to your rpm database.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| fingerprint           |                       | The long-form         |
+|                       |                       | fingerprint of the    |
+| string                |                       | key being imported.   |
+|                       |                       |                       |
+| added in 2.9          |                       | This will be used to  |
+|                       |                       | verify the specified  |
+|                       |                       | key.                  |
++-----------------------+-----------------------+-----------------------+
+| key                   |                       | Key that will be      |
+|                       |                       | modified. Can be a    |
+| - / required          |                       | url, a file on the    |
+|                       |                       | managed node, or a    |
+|                       |                       | keyid if the key      |
+|                       |                       | already exists in the |
+|                       |                       | database.             |
++-----------------------+-----------------------+-----------------------+
+| state                 | -   absent            | If the key will be    |
+|                       |                       | imported or removed   |
+| -                     | -   present ←         | from the rpm db.      |
++-----------------------+-----------------------+-----------------------+
+| validate_certs        | -   no                | If no and the key is  |
+|                       |                       | a url starting with   |
+| boolean               | -   yes ←             | https, SSL            |
+|                       |                       | certificates will not |
+|                       |                       | be validated.         |
+|                       |                       |                       |
+|                       |                       | This should only be   |
+|                       |                       | used on personally    |
+|                       |                       | controlled sites      |
+|                       |                       | using self-signed     |
+|                       |                       | certificates.         |
++-----------------------+-----------------------+-----------------------+
+
+Examples¶
+
+    # Example action to import a key from a url
+    - rpm_key:
+        state: present
+        key: http://apt.sw.be/RPM-GPG-KEY.dag.txt
+
+    # Example action to import a key from a file
+    - rpm_key:
+        state: present
+        key: /path/to/key.gpg
+
+    # Example action to ensure a key is not present in the db
+    - rpm_key:
+        state: absent
+        key: DEADB33F
+
+    # Verify the key, using a fingerprint, before import
+    - rpm_key:
+        key: /path/to/RPM-GPG-KEY.dag.txt
+        fingerprint: EBC6 E12C 62B1 C734 026B  2122 A20E 5214 6B8D 79E6
+
+Status¶
+
+-   This module is not guaranteed to have a backwards compatible
+    interface. [preview]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Hector Acosta (@hacosta) <hector.acosta@gazzang.com>
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

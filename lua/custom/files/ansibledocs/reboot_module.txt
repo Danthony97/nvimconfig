@@ -1,0 +1,190 @@
+
+reboot – Reboot a machine¶
+
+New in version 2.7.
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Return Values
+
+-   Status
+
+Synopsis¶
+
+-   Reboot a machine, wait for it to go down, come back up, and respond
+    to commands.
+
+-   For Windows targets, use the win_reboot module instead.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| connect_timeout       |                       | Maximum seconds to    |
+|                       |                       | wait for a successful |
+| integer               |                       | connection to the     |
+|                       |                       | managed hosts before  |
+|                       |                       | trying again.         |
+|                       |                       |                       |
+|                       |                       | If unspecified, the   |
+|                       |                       | default setting for   |
+|                       |                       | the underlying        |
+|                       |                       | connection plugin is  |
+|                       |                       | used.                 |
++-----------------------+-----------------------+-----------------------+
+| msg                   | Default:              | Message to display to |
+|                       |                       | users before reboot.  |
+| string                | "Reboot initiated by  |                       |
+|                       | Ansible"              |                       |
++-----------------------+-----------------------+-----------------------+
+| post_reboot_delay     | Default:              | Seconds to wait after |
+|                       |                       | the reboot command    |
+| integer               | 0                     | was successful before |
+|                       |                       | attempting to         |
+|                       |                       | validate the system   |
+|                       |                       | rebooted              |
+|                       |                       | successfully.         |
+|                       |                       |                       |
+|                       |                       | This is useful if you |
+|                       |                       | want wait for         |
+|                       |                       | something to settle   |
+|                       |                       | despite your          |
+|                       |                       | connection already    |
+|                       |                       | working.              |
++-----------------------+-----------------------+-----------------------+
+| pre_reboot_delay      | Default:              | Seconds to wait       |
+|                       |                       | before reboot. Passed |
+| integer               | 0                     | as a parameter to the |
+|                       |                       | reboot command.       |
+|                       |                       |                       |
+|                       |                       | On Linux, macOS and   |
+|                       |                       | OpenBSD, this is      |
+|                       |                       | converted to minutes  |
+|                       |                       | and rounded down. If  |
+|                       |                       | less than 60, it will |
+|                       |                       | be set to 0.          |
+|                       |                       |                       |
+|                       |                       | On Solaris and        |
+|                       |                       | FreeBSD, this will be |
+|                       |                       | seconds.              |
++-----------------------+-----------------------+-----------------------+
+| reboot_timeout        | Default:              | Maximum seconds to    |
+|                       |                       | wait for machine to   |
+| integer               | 600                   | reboot and respond to |
+|                       |                       | a test command.       |
+|                       |                       |                       |
+|                       |                       | This timeout is       |
+|                       |                       | evaluated separately  |
+|                       |                       | for both reboot       |
+|                       |                       | verification and test |
+|                       |                       | command success so    |
+|                       |                       | the maximum execution |
+|                       |                       | time for the module   |
+|                       |                       | is twice this amount. |
++-----------------------+-----------------------+-----------------------+
+| search_paths          | Default:              | Paths to search on    |
+|                       |                       | the remote machine    |
+| list                  | ["/sbin",             | for the shutdown      |
+|                       | "/usr/sbin",          | command.              |
+| added in 2.8          | "/usr/local/sbin"]    |                       |
+|                       |                       | Only these paths will |
+|                       |                       | be searched for the   |
+|                       |                       | shutdown command.     |
+|                       |                       | PATH is ignored in    |
+|                       |                       | the remote node when  |
+|                       |                       | searching for the     |
+|                       |                       | shutdown command.     |
++-----------------------+-----------------------+-----------------------+
+| test_command          | Default:              | Command to run on the |
+|                       |                       | rebooted host and     |
+| string                | "whoami"              | expect success from   |
+|                       |                       | to determine the      |
+|                       |                       | machine is ready for  |
+|                       |                       | further tasks.        |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   PATH is ignored on the remote node when searching for the shutdown
+    command. Use search_paths to specify locations to search if the
+    default paths do not work.
+
+See Also¶
+
+See also
+
+win_reboot – Reboot a windows machine
+
+    The official documentation on the win_reboot module.
+
+Examples¶
+
+    - name: Unconditionally reboot the machine with all defaults
+      reboot:
+
+    - name: Reboot a slow machine that might have lots of updates to apply
+      reboot:
+        reboot_timeout: 3600
+
+Return Values¶
+
+Common return values are documented here, the following are the fields
+unique to this module:
+
++-----------------------+-----------------------+-----------------------+
+| Key                   | Returned              | Description           |
++=======================+=======================+=======================+
+| elapsed               | always                | The number of seconds |
+|                       |                       | that elapsed waiting  |
+| integer               |                       | for the system to be  |
+|                       |                       | rebooted.             |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 23                    |
++-----------------------+-----------------------+-----------------------+
+| rebooted              | always                | true if the machine   |
+|                       |                       | was rebooted          |
+| boolean               |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | True                  |
++-----------------------+-----------------------+-----------------------+
+
+Status¶
+
+-   This module is not guaranteed to have a backwards compatible
+    interface. [preview]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Matt Davis (@nitzmahone)
+
+-   Sam Doran (@samdoran)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

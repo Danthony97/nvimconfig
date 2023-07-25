@@ -1,0 +1,297 @@
+
+shell – Execute shell commands on targets¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Return Values
+
+-   Status
+
+Synopsis¶
+
+-   The shell module takes the command name followed by a list of
+    space-delimited arguments.
+
+-   Either a free form command or cmd parameter is required, see the
+    examples.
+
+-   It is almost exactly like the command module but runs the command
+    through a shell (/bin/sh) on the remote node.
+
+-   For Windows targets, use the win_shell module instead.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| chdir                 |                       | Change into this      |
+|                       |                       | directory before      |
+| path                  |                       | running the command.  |
++-----------------------+-----------------------+-----------------------+
+| cmd                   |                       | The command to run    |
+|                       |                       | followed by optional  |
+| string                |                       | arguments.            |
++-----------------------+-----------------------+-----------------------+
+| creates               |                       | A filename, when it   |
+|                       |                       | already exists, this  |
+| path                  |                       | step will not be run. |
++-----------------------+-----------------------+-----------------------+
+| executable            |                       | Change the shell used |
+|                       |                       | to execute the        |
+| path                  |                       | command.              |
+|                       |                       |                       |
+|                       |                       | This expects an       |
+|                       |                       | absolute path to the  |
+|                       |                       | executable.           |
++-----------------------+-----------------------+-----------------------+
+| free_form             |                       | The shell module      |
+|                       |                       | takes a free form     |
+| string                |                       | command to run, as a  |
+|                       |                       | string.               |
+|                       |                       |                       |
+|                       |                       | There is no actual    |
+|                       |                       | parameter named 'free |
+|                       |                       | form'.                |
+|                       |                       |                       |
+|                       |                       | See the examples on   |
+|                       |                       | how to use this       |
+|                       |                       | module.               |
++-----------------------+-----------------------+-----------------------+
+| removes               |                       | A filename, when it   |
+|                       |                       | does not exist, this  |
+| path                  |                       | step will not be run. |
++-----------------------+-----------------------+-----------------------+
+| stdin                 |                       | Set the stdin of the  |
+|                       |                       | command directly to   |
+| string                |                       | the specified value.  |
+|                       |                       |                       |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| stdin_add_newline     | -   no                | Whether to append a   |
+|                       |                       | newline to stdin      |
+| boolean               | -   yes ←             | data.                 |
+|                       |                       |                       |
+| added in 2.8          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| warn                  | -   no                | Whether to enable     |
+|                       |                       | task warnings.        |
+| boolean               | -   yes ←             |                       |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   If you want to execute a command securely and predictably, it may be
+    better to use the command module instead. Best practices when
+    writing playbooks will follow the trend of using command unless the
+    shell module is explicitly required. When running ad-hoc commands,
+    use your best judgement.
+
+-   Check mode is supported when passing creates or removes. If running
+    in check mode and either of these are specified, the module will
+    check for the existence of the file and report the correct changed
+    status. If these are not supplied, the task will be skipped.
+
+-   To sanitize any variables passed to the shell module, you should use
+    {{ var | quote }} instead of just {{ var }} to make sure they do not
+    include evil things like semicolons.
+
+-   An alternative to using inline shell scripts with this module is to
+    use the script module possibly together with the template module.
+
+-   For rebooting systems, use the reboot or win_reboot module.
+
+See Also¶
+
+See also
+
+command – Execute commands on targets
+
+    The official documentation on the command module.
+
+raw – Executes a low-down and dirty command
+
+    The official documentation on the raw module.
+
+script – Runs a local script on a remote node after transferring it
+
+    The official documentation on the script module.
+
+win_shell – Execute shell commands on target hosts
+
+    The official documentation on the win_shell module.
+
+Examples¶
+
+    - name: Execute the command in remote shell; stdout goes to the specified file on the remote.
+      shell: somescript.sh >> somelog.txt
+
+    - name: Change the working directory to somedir/ before executing the command.
+      shell: somescript.sh >> somelog.txt
+      args:
+        chdir: somedir/
+
+    # You can also use the 'args' form to provide the options.
+    - name: This command will change the working directory to somedir/ and will only run when somedir/somelog.txt doesn't exist.
+      shell: somescript.sh >> somelog.txt
+      args:
+        chdir: somedir/
+        creates: somelog.txt
+
+    # You can also use the 'cmd' parameter instead of free form format.
+    - name: This command will change the working directory to somedir/.
+      shell:
+        cmd: ls -l | grep log
+        chdir: somedir/
+
+    - name: Run a command that uses non-posix shell-isms (in this example /bin/sh doesn't handle redirection and wildcards together but bash does)
+      shell: cat < /tmp/*txt
+      args:
+        executable: /bin/bash
+
+    - name: Run a command using a templated variable (always use quote filter to avoid injection)
+      shell: cat {{ myfile|quote }}
+
+    # You can use shell to run other executables to perform actions inline
+    - name: Run expect to wait for a successful PXE boot via out-of-band CIMC
+      shell: |
+        set timeout 300
+        spawn ssh admin@{{ cimc_host }}
+
+        expect "password:"
+        send "{{ cimc_password }}\n"
+
+        expect "\n{{ cimc_name }}"
+        send "connect host\n"
+
+        expect "pxeboot.n12"
+        send "\n"
+
+        exit 0
+      args:
+        executable: /usr/bin/expect
+      delegate_to: localhost
+
+    # Disabling warnings
+    - name: Using curl to connect to a host via SOCKS proxy (unsupported in uri). Ordinarily this would throw a warning.
+      shell: curl --socks5 localhost:9000 http://www.ansible.com
+      args:
+        warn: no
+
+Return Values¶
+
+Common return values are documented here, the following are the fields
+unique to this module:
+
++-----------------------+-----------------------+-----------------------+
+| Key                   | Returned              | Description           |
++=======================+=======================+=======================+
+| cmd                   | always                | The command executed  |
+|                       |                       | by the task           |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | rabbitmqctl           |
+|                       |                       | join_cluster          |
+|                       |                       | [email protected]     |
++-----------------------+-----------------------+-----------------------+
+| delta                 | always                | The command execution |
+|                       |                       | delta time            |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 0:00:00.325771        |
++-----------------------+-----------------------+-----------------------+
+| end                   | always                | The command execution |
+|                       |                       | end time              |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 2016-02-25            |
+|                       |                       | 09:18:26.755339       |
++-----------------------+-----------------------+-----------------------+
+| msg                   | always                | changed               |
+|                       |                       |                       |
+| boolean               |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | True                  |
++-----------------------+-----------------------+-----------------------+
+| rc                    | always                | The command return    |
+|                       |                       | code (0 means         |
+| integer               |                       | success)              |
++-----------------------+-----------------------+-----------------------+
+| start                 | always                | The command execution |
+|                       |                       | start time            |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 2016-02-25            |
+|                       |                       | 09:18:26.429568       |
++-----------------------+-----------------------+-----------------------+
+| stderr                | always                | The command standard  |
+|                       |                       | error                 |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | ls: cannot access     |
+|                       |                       | foo: No such file or  |
+|                       |                       | directory             |
++-----------------------+-----------------------+-----------------------+
+| stdout                | always                | The command standard  |
+|                       |                       | output                |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | Clustering node       |
+|                       |                       | [email protected]     |
+|                       |                       | with                  |
+|                       |                       | [email protected] ... |
++-----------------------+-----------------------+-----------------------+
+| stdout_lines          | always                | The command standard  |
+|                       |                       | output split in lines |
+| list                  |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | ["u'Clustering node   |
+|                       |                       | [email protected]     |
+|                       |                       | with                  |
+|                       |                       | [email protected]     |
+|                       |                       | ...'"]                |
++-----------------------+-----------------------+-----------------------+
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team
+
+-   Michael DeHaan
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

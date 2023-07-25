@@ -1,0 +1,164 @@
+
+script – Runs a local script on a remote node after transferring it¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   The script module takes the script name followed by a list of
+    space-delimited arguments.
+
+-   Either a free form command or cmd parameter is required, see the
+    examples.
+
+-   The local script at path will be transferred to the remote node and
+    then executed.
+
+-   The given script will be processed through the shell environment on
+    the remote node.
+
+-   This module does not require python on the remote system, much like
+    the raw module.
+
+-   This module is also supported for Windows targets.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| chdir                 |                       | Change into this      |
+|                       |                       | directory on the      |
+| -                     |                       | remote node before    |
+|                       |                       | running the script.   |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| cmd                   |                       | Path to the local     |
+|                       |                       | script to run         |
+| string                |                       | followed by optional  |
+|                       |                       | arguments.            |
++-----------------------+-----------------------+-----------------------+
+| creates               |                       | A filename on the     |
+|                       |                       | remote node, when it  |
+| -                     |                       | already exists, this  |
+|                       |                       | step will not be run. |
++-----------------------+-----------------------+-----------------------+
+| decrypt               | -   no                | This option controls  |
+|                       |                       | the autodecryption of |
+| boolean               | -   yes ←             | source files using    |
+|                       |                       | vault.                |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| executable            |                       | Name or path of a     |
+|                       |                       | executable to invoke  |
+| -                     |                       | the script with.      |
+|                       |                       |                       |
+| added in 2.6          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| free_form             |                       | Path to the local     |
+|                       |                       | script file followed  |
+| -                     |                       | by optional           |
+|                       |                       | arguments.            |
++-----------------------+-----------------------+-----------------------+
+| removes               |                       | A filename on the     |
+|                       |                       | remote node, when it  |
+| -                     |                       | does not exist, this  |
+|                       |                       | step will not be run. |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   It is usually preferable to write Ansible modules rather than
+    pushing scripts. Convert your script to an Ansible module for bonus
+    points!
+
+-   The ssh connection plugin will force pseudo-tty allocation via -tt
+    when scripts are executed. Pseudo-ttys do not have a stderr channel
+    and all stderr is sent to stdout. If you depend on separated stdout
+    and stderr result keys, please switch to a copy+command set of tasks
+    instead of using script.
+
+-   If the path to the local script contains spaces, it needs to be
+    quoted.
+
+-   This module is also supported for Windows targets.
+
+See Also¶
+
+See also
+
+shell – Execute shell commands on targets
+
+    The official documentation on the shell module.
+
+win_shell – Execute shell commands on target hosts
+
+    The official documentation on the win_shell module.
+
+Examples¶
+
+    - name: Run a script with arguments (free form)
+      script: /some/local/script.sh --some-argument 1234
+
+    - name: Run a script with arguments (using 'cmd' parameter)
+      script:
+        cmd: /some/local/script.sh --some-argument 1234
+
+    - name: Run a script only if file.txt does not exist on the remote node
+      script: /some/local/create_file.sh --some-argument 1234
+      args:
+        creates: /the/created/file.txt
+
+    - name: Run a script only if file.txt exists on the remote node
+      script: /some/local/remove_file.sh --some-argument 1234
+      args:
+        removes: /the/removed/file.txt
+
+    - name: Run a script using an executable in a non-system path
+      script: /some/local/script
+      args:
+        executable: /some/remote/executable
+
+    - name: Run a script using an executable in a system path
+      script: /some/local/script.py
+      args:
+        executable: python3
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team
+
+-   Michael DeHaan
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

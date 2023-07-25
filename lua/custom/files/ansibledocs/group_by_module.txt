@@ -1,0 +1,94 @@
+
+group_by – Create Ansible groups based on facts¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Use facts to create ad-hoc groups that can be used later in a
+    playbook.
+
+-   This module is also supported for Windows targets.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| key                   |                       | The variables whose   |
+|                       |                       | values will be used   |
+| string / required     |                       | as groups.            |
++-----------------------+-----------------------+-----------------------+
+| parents               | Default:              | The list of the       |
+|                       |                       | parent groups.        |
+| list                  | "all"                 |                       |
+|                       |                       |                       |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   Spaces in group names are converted to dashes ‘-‘.
+
+-   This module is also supported for Windows targets.
+
+See Also¶
+
+See also
+
+add_host – Add a host (and alternatively a group) to the ansible-playbook in-memory inventory
+
+    The official documentation on the add_host module.
+
+Examples¶
+
+    # Create groups based on the machine architecture
+    - group_by:
+        key: machine_{{ ansible_machine }}
+
+    # Create groups like 'virt_kvm_host'
+    - group_by:
+        key: virt_{{ ansible_virtualization_type }}_{{ ansible_virtualization_role }}
+
+    # Create nested groups
+    - group_by:
+        key: el{{ ansible_distribution_major_version }}-{{ ansible_architecture }}
+        parents:
+          - el{{ ansible_distribution_major_version }}
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Jeroen Hoekx (@jhoekx)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

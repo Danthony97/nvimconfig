@@ -1,0 +1,197 @@
+
+include_role – Load and execute a role¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Dynamically loads and executes a specified role as a task.
+
+-   May be used only where Ansible tasks are allowed - inside pre_tasks,
+    tasks, or post_tasks playbook objects, or as a task inside a role.
+
+-   Task-level keywords, loops, and conditionals apply only to the
+    include_role statement itself.
+
+-   To apply keywords to the tasks within the role, pass them using the
+    apply option or use import_role instead.
+
+-   Ignores some keywords, like until and retries.
+
+-   This module is also supported for Windows targets.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| allow_duplicates      | -   no                | Overrides the role's  |
+|                       |                       | metadata setting to   |
+| boolean               | -   yes ←             | allow using a role    |
+|                       |                       | more than once with   |
+|                       |                       | the same parameters.  |
++-----------------------+-----------------------+-----------------------+
+| apply                 |                       | Accepts a hash of     |
+|                       |                       | task keywords (e.g.   |
+| -                     |                       | tags, become) that    |
+|                       |                       | will be applied to    |
+| added in 2.7          |                       | all tasks within the  |
+|                       |                       | included role.        |
++-----------------------+-----------------------+-----------------------+
+| defaults_from         | Default:              | File to load from a   |
+|                       |                       | role's defaults/      |
+| string                | "main"                | directory.            |
++-----------------------+-----------------------+-----------------------+
+| handlers_from         | Default:              | File to load from a   |
+|                       |                       | role's handlers/      |
+| string                | "main"                | directory.            |
+|                       |                       |                       |
+| added in 2.8          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| name                  |                       | The name of the role  |
+|                       |                       | to be executed.       |
+| string / required     |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| public                | -   no ←              | This option dictates  |
+|                       |                       | whether the role's    |
+| boolean               | -   yes               | vars and defaults are |
+|                       |                       | exposed to the        |
+| added in 2.7          |                       | playbook. If set to   |
+|                       |                       | yes the variables     |
+|                       |                       | will be available to  |
+|                       |                       | tasks following the   |
+|                       |                       | include_role task.    |
+|                       |                       | This functionality    |
+|                       |                       | differs from standard |
+|                       |                       | variable exposure for |
+|                       |                       | roles listed under    |
+|                       |                       | the roles header or   |
+|                       |                       | import_role as they   |
+|                       |                       | are exposed at        |
+|                       |                       | playbook parsing      |
+|                       |                       | time, and available   |
+|                       |                       | to earlier roles and  |
+|                       |                       | tasks as well.        |
++-----------------------+-----------------------+-----------------------+
+| tasks_from            | Default:              | File to load from a   |
+|                       |                       | role's tasks/         |
+| string                | "main"                | directory.            |
++-----------------------+-----------------------+-----------------------+
+| vars_from             | Default:              | File to load from a   |
+|                       |                       | role's vars/          |
+| string                | "main"                | directory.            |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   Handlers are made available to the whole play.
+
+-   Before Ansible 2.4, as with include, this task could be static or
+    dynamic, If static, it implied that it won’t need templating, loops
+    or conditionals and will show included tasks in the --list options.
+    Ansible would try to autodetect what is needed, but you can set
+    static to yes or no at task level to control this.
+
+-   After Ansible 2.4, you can use import_role for static behaviour and
+    this action for dynamic one.
+
+See Also¶
+
+See also
+
+import_playbook – Import a playbook
+
+    The official documentation on the import_playbook module.
+
+import_role – Import a role into a play
+
+    The official documentation on the import_role module.
+
+import_tasks – Import a task list
+
+    The official documentation on the import_tasks module.
+
+include_tasks – Dynamically include a task list
+
+    The official documentation on the include_tasks module.
+
+Including and Importing
+
+    More information related to including and importing playbooks, roles
+    and tasks.
+
+Examples¶
+
+    - include_role:
+        name: myrole
+
+    - name: Run tasks/other.yaml instead of 'main'
+      include_role:
+        name: myrole
+        tasks_from: other
+
+    - name: Pass variables to role
+      include_role:
+        name: myrole
+      vars:
+        rolevar1: value from task
+
+    - name: Use role in loop
+      include_role:
+        name: '{{ roleinputvar }}'
+      loop:
+        - '{{ roleinput1 }}'
+        - '{{ roleinput2 }}'
+      loop_control:
+        loop_var: roleinputvar
+
+    - name: Conditional role
+      include_role:
+        name: myrole
+      when: not idontwanttorun
+
+    - name: Apply tags to tasks within included file
+      include_role:
+        name: install
+        apply:
+          tags:
+            - install
+      tags:
+        - always
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team (@ansible)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

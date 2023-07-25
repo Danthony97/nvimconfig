@@ -1,0 +1,91 @@
+
+gather_facts – Gathers facts about remote hosts¶
+
+New in version 2.8.
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   This module takes care of executing the configured facts modules,
+    the default is to use the setup module.
+
+-   This module is automatically called by playbooks to gather useful
+    variables about remote hosts that can be used in playbooks.
+
+-   It can also be executed directly by /usr/bin/ansible to check what
+    variables are available to a host.
+
+-   Ansible provides many facts about the system, automatically.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| parallel              | -   no                | A toggle that         |
+|                       | -   yes               | controls if the fact  |
+| boolean               |                       | modules are executed  |
+|                       |                       | in parallel or        |
+|                       |                       | serially and in       |
+|                       |                       | order. This can       |
+|                       |                       | guarantee the merge   |
+|                       |                       | order of module facts |
+|                       |                       | at the expense of     |
+|                       |                       | performance.          |
+|                       |                       |                       |
+|                       |                       | By default it will be |
+|                       |                       | true if more than one |
+|                       |                       | fact module is used.  |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   This module is mostly a wrapper around other fact gathering modules.
+
+-   Options passed to this module must be supported by all the
+    underlying fact modules configured.
+
+-   Facts returned by each module will be merged, conflicts will favor
+    ‘last merged’. Order is not guaranteed, when doing parallel
+    gathering on multiple modules.
+
+Examples¶
+
+    # Display facts from all hosts and store them indexed by I(hostname) at C(/tmp/facts).
+    # ansible all -m gather_facts --tree /tmp/facts
+
+Status¶
+
+-   This module is not guaranteed to have a backwards compatible
+    interface. [preview]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

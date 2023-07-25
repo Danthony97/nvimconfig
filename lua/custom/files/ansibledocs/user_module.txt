@@ -1,0 +1,711 @@
+
+user – Manage user accounts¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Return Values
+
+-   Status
+
+Synopsis¶
+
+-   Manage user accounts and user attributes.
+
+-   For Windows targets, use the win_user module instead.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| append                | -   no ←              | If yes, add the user  |
+|                       |                       | to the groups         |
+| boolean               | -   yes               | specified in groups.  |
+|                       |                       |                       |
+|                       |                       | If no, user will only |
+|                       |                       | be added to the       |
+|                       |                       | groups specified in   |
+|                       |                       | groups, removing them |
+|                       |                       | from all other        |
+|                       |                       | groups.               |
+|                       |                       |                       |
+|                       |                       | Mutually exclusive    |
+|                       |                       | with local            |
++-----------------------+-----------------------+-----------------------+
+| authorization         |                       | Sets the              |
+|                       |                       | authorization of the  |
+| string                |                       | user.                 |
+|                       |                       |                       |
+| added in 2.8          |                       | Does nothing when     |
+|                       |                       | used with other       |
+|                       |                       | platforms.            |
+|                       |                       |                       |
+|                       |                       | Can set multiple      |
+|                       |                       | authorizations using  |
+|                       |                       | comma separation.     |
+|                       |                       |                       |
+|                       |                       | To delete all         |
+|                       |                       | authorizations, use   |
+|                       |                       | authorization=''.     |
+|                       |                       |                       |
+|                       |                       | Currently supported   |
+|                       |                       | on Illumos/Solaris.   |
++-----------------------+-----------------------+-----------------------+
+| comment               |                       | Optionally sets the   |
+|                       |                       | description (aka      |
+| string                |                       | GECOS) of user        |
+|                       |                       | account.              |
++-----------------------+-----------------------+-----------------------+
+| create_home           | -   no                | Unless set to no, a   |
+|                       |                       | home directory will   |
+| boolean               | -   yes ←             | be made for the user  |
+|                       |                       | when the account is   |
+|                       |                       | created or if the     |
+|                       |                       | home directory does   |
+|                       |                       | not exist.            |
+|                       |                       |                       |
+|                       |                       | Changed from          |
+|                       |                       | createhome to         |
+|                       |                       | create_home in        |
+|                       |                       | Ansible 2.5.          |
+|                       |                       |                       |
+|                       |                       | aliases: createhome   |
++-----------------------+-----------------------+-----------------------+
+| expires               |                       | An expiry time for    |
+|                       |                       | the user in epoch, it |
+| float                 |                       | will be ignored on    |
+|                       |                       | platforms that do not |
+|                       |                       | support this.         |
+|                       |                       |                       |
+|                       |                       | Currently supported   |
+|                       |                       | on GNU/Linux,         |
+|                       |                       | FreeBSD, and          |
+|                       |                       | DragonFlyBSD.         |
+|                       |                       |                       |
+|                       |                       | Since Ansible 2.6 you |
+|                       |                       | can remove the expiry |
+|                       |                       | time specify a        |
+|                       |                       | negative value.       |
+|                       |                       | Currently supported   |
+|                       |                       | on GNU/Linux and      |
+|                       |                       | FreeBSD.              |
++-----------------------+-----------------------+-----------------------+
+| force                 | -   no ←              | This only affects     |
+|                       |                       | state=absent, it      |
+| boolean               | -   yes               | forces removal of the |
+|                       |                       | user and associated   |
+|                       |                       | directories on        |
+|                       |                       | supported platforms.  |
+|                       |                       |                       |
+|                       |                       | The behavior is the   |
+|                       |                       | same as               |
+|                       |                       | userdel --force,      |
+|                       |                       | check the man page    |
+|                       |                       | for userdel on your   |
+|                       |                       | system for details    |
+|                       |                       | and support.          |
+|                       |                       |                       |
+|                       |                       | When used with        |
+|                       |                       | generate_ssh_key=yes  |
+|                       |                       | this forces an        |
+|                       |                       | existing key to be    |
+|                       |                       | overwritten.          |
++-----------------------+-----------------------+-----------------------+
+| generate_ssh_key      | -   no ←              | Whether to generate a |
+|                       |                       | SSH key for the user  |
+| boolean               | -   yes               | in question.          |
+|                       |                       |                       |
+|                       |                       | This will not         |
+|                       |                       | overwrite an existing |
+|                       |                       | SSH key unless used   |
+|                       |                       | with force=yes.       |
++-----------------------+-----------------------+-----------------------+
+| group                 |                       | Optionally sets the   |
+|                       |                       | user's primary group  |
+| string                |                       | (takes a group name). |
++-----------------------+-----------------------+-----------------------+
+| groups                |                       | List of groups user   |
+|                       |                       | will be added to.     |
+| list                  |                       | When set to an empty  |
+|                       |                       | string '', the user   |
+|                       |                       | is removed from all   |
+|                       |                       | groups except the     |
+|                       |                       | primary group.        |
+|                       |                       |                       |
+|                       |                       | Before Ansible 2.3,   |
+|                       |                       | the only input format |
+|                       |                       | allowed was a comma   |
+|                       |                       | separated string.     |
+|                       |                       |                       |
+|                       |                       | Mutually exclusive    |
+|                       |                       | with local            |
++-----------------------+-----------------------+-----------------------+
+| hidden                | -   no                | macOS only,           |
+|                       | -   yes               | optionally hide the   |
+| boolean               |                       | user from the login   |
+|                       |                       | window and system     |
+| added in 2.6          |                       | preferences.          |
+|                       |                       |                       |
+|                       |                       | The default will be   |
+|                       |                       | yes if the system     |
+|                       |                       | option is used.       |
++-----------------------+-----------------------+-----------------------+
+| home                  |                       | Optionally set the    |
+|                       |                       | user's home           |
+| path                  |                       | directory.            |
++-----------------------+-----------------------+-----------------------+
+| local                 | -   no ←              | Forces the use of     |
+|                       |                       | "local" command       |
+| boolean               | -   yes               | alternatives on       |
+|                       |                       | platforms that        |
+| added in 2.4          |                       | implement it.         |
+|                       |                       |                       |
+|                       |                       | This is useful in     |
+|                       |                       | environments that use |
+|                       |                       | centralized           |
+|                       |                       | authentification when |
+|                       |                       | you want to           |
+|                       |                       | manipulate the local  |
+|                       |                       | users (i.e. it uses   |
+|                       |                       | luseradd instead of   |
+|                       |                       | useradd).             |
+|                       |                       |                       |
+|                       |                       | This will check       |
+|                       |                       | /etc/passwd for an    |
+|                       |                       | existing account      |
+|                       |                       | before invoking       |
+|                       |                       | commands. If the      |
+|                       |                       | local account         |
+|                       |                       | database exists       |
+|                       |                       | somewhere other than  |
+|                       |                       | /etc/passwd, this     |
+|                       |                       | setting will not work |
+|                       |                       | properly.             |
+|                       |                       |                       |
+|                       |                       | This requires that    |
+|                       |                       | the above commands as |
+|                       |                       | well as /etc/passwd   |
+|                       |                       | must exist on the     |
+|                       |                       | target host,          |
+|                       |                       | otherwise it will be  |
+|                       |                       | a fatal error.        |
+|                       |                       |                       |
+|                       |                       | Mutually exclusive    |
+|                       |                       | with groups and       |
+|                       |                       | append                |
++-----------------------+-----------------------+-----------------------+
+| login_class           |                       | Optionally sets the   |
+|                       |                       | user's login class, a |
+| string                |                       | feature of most BSD   |
+|                       |                       | OSs.                  |
++-----------------------+-----------------------+-----------------------+
+| move_home             | -   no ←              | If set to yes when    |
+|                       |                       | used with home: ,     |
+| boolean               | -   yes               | attempt to move the   |
+|                       |                       | user's old home       |
+|                       |                       | directory to the      |
+|                       |                       | specified directory   |
+|                       |                       | if it isn't there     |
+|                       |                       | already and the old   |
+|                       |                       | home exists.          |
++-----------------------+-----------------------+-----------------------+
+| name                  |                       | Name of the user to   |
+|                       |                       | create, remove or     |
+| string / required     |                       | modify.               |
+|                       |                       |                       |
+|                       |                       | aliases: user         |
++-----------------------+-----------------------+-----------------------+
+| non_unique            | -   no ←              | Optionally when used  |
+|                       |                       | with the -u option,   |
+| boolean               | -   yes               | this option allows to |
+|                       |                       | change the user ID to |
+|                       |                       | a non-unique value.   |
++-----------------------+-----------------------+-----------------------+
+| password              |                       | Optionally set the    |
+|                       |                       | user's password to    |
+| string                |                       | this crypted value.   |
+|                       |                       |                       |
+|                       |                       | On macOS systems,     |
+|                       |                       | this value has to be  |
+|                       |                       | cleartext. Beware of  |
+|                       |                       | security issues.      |
+|                       |                       |                       |
+|                       |                       | To create a disabled  |
+|                       |                       | account on Linux      |
+|                       |                       | systems, set this to  |
+|                       |                       | '!' or '*'.           |
+|                       |                       |                       |
+|                       |                       | To create a disabled  |
+|                       |                       | account on OpenBSD,   |
+|                       |                       | set this to           |
+|                       |                       | '*************'.      |
+|                       |                       |                       |
+|                       |                       | See                   |
+|                       |                       | https://docs.an       |
+|                       |                       | sible.com/ansible/faq |
+|                       |                       | .html#how-do-i-genera |
+|                       |                       | te-encrypted-password |
+|                       |                       | s-for-the-user-module |
+|                       |                       | for details on        |
+|                       |                       | various ways to       |
+|                       |                       | generate these        |
+|                       |                       | password values.      |
++-----------------------+-----------------------+-----------------------+
+| password_lock         | -   no                | Lock the password     |
+|                       | -   yes               | (usermod -L,          |
+| boolean               |                       | usermod -U, pw lock). |
+|                       |                       |                       |
+| added in 2.6          |                       | Implementation        |
+|                       |                       | differs by platform.  |
+|                       |                       | This option does not  |
+|                       |                       | always mean the user  |
+|                       |                       | cannot login using    |
+|                       |                       | other methods.        |
+|                       |                       |                       |
+|                       |                       | This option does not  |
+|                       |                       | disable the user,     |
+|                       |                       | only lock the         |
+|                       |                       | password.             |
+|                       |                       |                       |
+|                       |                       | This must be set to   |
+|                       |                       | False in order to     |
+|                       |                       | unlock a currently    |
+|                       |                       | locked password. The  |
+|                       |                       | absence of this       |
+|                       |                       | parameter will not    |
+|                       |                       | unlock a password.    |
+|                       |                       |                       |
+|                       |                       | Currently supported   |
+|                       |                       | on Linux, FreeBSD,    |
+|                       |                       | DragonFlyBSD, NetBSD, |
+|                       |                       | OpenBSD.              |
++-----------------------+-----------------------+-----------------------+
+| profile               |                       | Sets the profile of   |
+|                       |                       | the user.             |
+| string                |                       |                       |
+|                       |                       | Does nothing when     |
+| added in 2.8          |                       | used with other       |
+|                       |                       | platforms.            |
+|                       |                       |                       |
+|                       |                       | Can set multiple      |
+|                       |                       | profiles using comma  |
+|                       |                       | separation.           |
+|                       |                       |                       |
+|                       |                       | To delete all the     |
+|                       |                       | profiles, use         |
+|                       |                       | profile=''.           |
+|                       |                       |                       |
+|                       |                       | Currently supported   |
+|                       |                       | on Illumos/Solaris.   |
++-----------------------+-----------------------+-----------------------+
+| remove                | -   no ←              | This only affects     |
+|                       |                       | state=absent, it      |
+| boolean               | -   yes               | attempts to remove    |
+|                       |                       | directories           |
+|                       |                       | associated with the   |
+|                       |                       | user.                 |
+|                       |                       |                       |
+|                       |                       | The behavior is the   |
+|                       |                       | same as               |
+|                       |                       | userdel --remove,     |
+|                       |                       | check the man page    |
+|                       |                       | for details and       |
+|                       |                       | support.              |
++-----------------------+-----------------------+-----------------------+
+| role                  |                       | Sets the role of the  |
+|                       |                       | user.                 |
+| string                |                       |                       |
+|                       |                       | Does nothing when     |
+| added in 2.8          |                       | used with other       |
+|                       |                       | platforms.            |
+|                       |                       |                       |
+|                       |                       | Can set multiple      |
+|                       |                       | roles using comma     |
+|                       |                       | separation.           |
+|                       |                       |                       |
+|                       |                       | To delete all roles,  |
+|                       |                       | use role=''.          |
+|                       |                       |                       |
+|                       |                       | Currently supported   |
+|                       |                       | on Illumos/Solaris.   |
++-----------------------+-----------------------+-----------------------+
+| seuser                |                       | Optionally sets the   |
+|                       |                       | seuser type (user_u)  |
+| string                |                       | on selinux enabled    |
+|                       |                       | systems.              |
++-----------------------+-----------------------+-----------------------+
+| shell                 |                       | Optionally set the    |
+|                       |                       | user's shell.         |
+| string                |                       |                       |
+|                       |                       | On macOS, before      |
+|                       |                       | Ansible 2.5, the      |
+|                       |                       | default shell for     |
+|                       |                       | non-system users was  |
+|                       |                       | /usr/bin/false. Since |
+|                       |                       | Ansible 2.5, the      |
+|                       |                       | default shell for     |
+|                       |                       | non-system users on   |
+|                       |                       | macOS is /bin/bash.   |
+|                       |                       |                       |
+|                       |                       | On other operating    |
+|                       |                       | systems, the default  |
+|                       |                       | shell is determined   |
+|                       |                       | by the underlying     |
+|                       |                       | tool being used. See  |
+|                       |                       | Notes for details.    |
++-----------------------+-----------------------+-----------------------+
+| skeleton              |                       | Optionally set a home |
+|                       |                       | skeleton directory.   |
+| string                |                       |                       |
+|                       |                       | Requires create_home  |
+|                       |                       | option!               |
++-----------------------+-----------------------+-----------------------+
+| ssh_key_bits          | Default:              | Optionally specify    |
+|                       |                       | number of bits in SSH |
+| integer               | "default set by       | key to create.        |
+|                       | ssh-keygen"           |                       |
++-----------------------+-----------------------+-----------------------+
+| ssh_key_comment       | Default:              | Optionally define the |
+|                       |                       | comment for the SSH   |
+| string                | "ansible-generated on | key.                  |
+|                       | $HOSTNAME"            |                       |
++-----------------------+-----------------------+-----------------------+
+| ssh_key_file          |                       | Optionally specify    |
+|                       |                       | the SSH key filename. |
+| path                  |                       |                       |
+|                       |                       | If this is a relative |
+|                       |                       | filename then it will |
+|                       |                       | be relative to the    |
+|                       |                       | user's home           |
+|                       |                       | directory.            |
+|                       |                       |                       |
+|                       |                       | This parameter        |
+|                       |                       | defaults to           |
+|                       |                       | .ssh/id_rsa.          |
++-----------------------+-----------------------+-----------------------+
+| ssh_key_passphrase    |                       | Set a passphrase for  |
+|                       |                       | the SSH key.          |
+| string                |                       |                       |
+|                       |                       | If no passphrase is   |
+|                       |                       | provided, the SSH key |
+|                       |                       | will default to       |
+|                       |                       | having no passphrase. |
++-----------------------+-----------------------+-----------------------+
+| ssh_key_type          | Default:              | Optionally specify    |
+|                       |                       | the type of SSH key   |
+| string                | "rsa"                 | to generate.          |
+|                       |                       |                       |
+|                       |                       | Available SSH key     |
+|                       |                       | types will depend on  |
+|                       |                       | implementation        |
+|                       |                       | present on target     |
+|                       |                       | host.                 |
++-----------------------+-----------------------+-----------------------+
+| state                 | -   absent            | Whether the account   |
+|                       |                       | should exist or not,  |
+| string                | -   present ←         | taking action if the  |
+|                       |                       | state is different    |
+|                       |                       | from what is stated.  |
++-----------------------+-----------------------+-----------------------+
+| system                | -   no ←              | When creating an      |
+|                       |                       | account               |
+| boolean               | -   yes               | state=present,        |
+|                       |                       | setting this to yes   |
+|                       |                       | makes the user a      |
+|                       |                       | system account.       |
+|                       |                       |                       |
+|                       |                       | This setting cannot   |
+|                       |                       | be changed on         |
+|                       |                       | existing users.       |
++-----------------------+-----------------------+-----------------------+
+| uid                   |                       | Optionally sets the   |
+|                       |                       | UID of the user.      |
+| integer               |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| update_password       | -   always ←          | always will update    |
+|                       |                       | passwords if they     |
+| string                | -   on_create         | differ.               |
+|                       |                       |                       |
+|                       |                       | on_create will only   |
+|                       |                       | set the password for  |
+|                       |                       | newly created users.  |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   There are specific requirements per platform on user management
+    utilities. However they generally come pre-installed with the system
+    and Ansible will require they are present at runtime. If they are
+    not, a descriptive error message will be shown.
+
+-   On SunOS platforms, the shadow file is backed up automatically since
+    this module edits it directly. On other platforms, the shadow file
+    is backed up by the underlying tools used by this module.
+
+-   On macOS, this module uses dscl to create, modify, and delete
+    accounts. dseditgroup is used to modify group membership. Accounts
+    are hidden from the login window by modifying
+    /Library/Preferences/com.apple.loginwindow.plist.
+
+-   On FreeBSD, this module uses pw useradd and chpass to create,
+    pw usermod and chpass to modify, pw userdel remove, pw lock to lock,
+    and pw unlock to unlock accounts.
+
+-   On all other platforms, this module uses useradd to create, usermod
+    to modify, and userdel to remove accounts.
+
+See Also¶
+
+See also
+
+authorized_key – Adds or removes an SSH authorized key
+
+    The official documentation on the authorized_key module.
+
+group – Add or remove groups
+
+    The official documentation on the group module.
+
+win_user – Manages local Windows user accounts
+
+    The official documentation on the win_user module.
+
+Examples¶
+
+    - name: Add the user 'johnd' with a specific uid and a primary group of 'admin'
+      user:
+        name: johnd
+        comment: John Doe
+        uid: 1040
+        group: admin
+
+    - name: Add the user 'james' with a bash shell, appending the group 'admins' and 'developers' to the user's groups
+      user:
+        name: james
+        shell: /bin/bash
+        groups: admins,developers
+        append: yes
+
+    - name: Remove the user 'johnd'
+      user:
+        name: johnd
+        state: absent
+        remove: yes
+
+    - name: Create a 2048-bit SSH key for user jsmith in ~jsmith/.ssh/id_rsa
+      user:
+        name: jsmith
+        generate_ssh_key: yes
+        ssh_key_bits: 2048
+        ssh_key_file: .ssh/id_rsa
+
+    - name: Added a consultant whose account you want to expire
+      user:
+        name: james18
+        shell: /bin/zsh
+        groups: developers
+        expires: 1422403387
+
+    - name: Starting at Ansible 2.6, modify user, remove expiry time
+      user:
+        name: james18
+        expires: -1
+
+Return Values¶
+
+Common return values are documented here, the following are the fields
+unique to this module:
+
++-----------------------+-----------------------+-----------------------+
+| Key                   | Returned              | Description           |
++=======================+=======================+=======================+
+| append                | When state is         | Whether or not to     |
+|                       | 'present' and the     | append the user to    |
+| boolean               | user exists           | groups                |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | True                  |
++-----------------------+-----------------------+-----------------------+
+| comment               | When user exists      | Comment section from  |
+|                       |                       | passwd file, usually  |
+| string                |                       | the user name         |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | Agent Smith           |
++-----------------------+-----------------------+-----------------------+
+| create_home           | When user does not    | Whether or not to     |
+|                       | exist and not check   | create the home       |
+| boolean               | mode                  | directory             |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | True                  |
++-----------------------+-----------------------+-----------------------+
+| force                 | When state is         | Whether or not a user |
+|                       | 'absent' and user     | account was forcibly  |
+| boolean               | exists                | deleted               |
++-----------------------+-----------------------+-----------------------+
+| group                 | When user exists      | Primary user group ID |
+|                       |                       |                       |
+| integer               |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 1001                  |
++-----------------------+-----------------------+-----------------------+
+| groups                | When groups is not    | List of groups of     |
+|                       | empty and state is    | which the user is a   |
+| string                | 'present'             | member                |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | chrony,apache         |
++-----------------------+-----------------------+-----------------------+
+| home                  | When state is         | Path to user's home   |
+|                       | 'present'             | directory             |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | /home/asmith          |
++-----------------------+-----------------------+-----------------------+
+| move_home             | When state is         | Whether or not to     |
+|                       | 'present' and user    | move an existing home |
+| boolean               | exists                | directory             |
++-----------------------+-----------------------+-----------------------+
+| name                  | always                | User account name     |
+|                       |                       |                       |
+| string                |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | asmith                |
++-----------------------+-----------------------+-----------------------+
+| password              | When state is         | Masked value of the   |
+|                       | 'present' and         | password              |
+| string                | password is not empty |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | NOT_LOGGING_PASSWORD  |
++-----------------------+-----------------------+-----------------------+
+| remove                | When state is         | Whether or not to     |
+|                       | 'absent' and user     | remove the user       |
+| boolean               | exists                | account               |
+|                       |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | True                  |
++-----------------------+-----------------------+-----------------------+
+| shell                 | When state is         | User login shell      |
+|                       | 'present'             |                       |
+| string                |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | /bin/bash             |
++-----------------------+-----------------------+-----------------------+
+| ssh_fingerprint       | When generate_ssh_key | Fingerprint of        |
+|                       | is True               | generated SSH key     |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 2048                  |
+|                       |                       | SHA256:a              |
+|                       |                       | YNHYcyVm87Igh0IMEDMbv |
+|                       |                       | W0QDlRQfE0aJugp684ko8 |
+|                       |                       | ansible-generated on  |
+|                       |                       | host (RSA)            |
++-----------------------+-----------------------+-----------------------+
+| ssh_key_file          | When generate_ssh_key | Path to generated SSH |
+|                       | is True               | private key file      |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | /ho                   |
+|                       |                       | me/asmith/.ssh/id_rsa |
++-----------------------+-----------------------+-----------------------+
+| ssh_public_key        | When generate_ssh_key | Generated SSH public  |
+|                       | is True               | key file              |
+| string                |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 'ssh-rsa              |
+|                       |                       | AAAAB3NzaC1yc2EAAAAD  |
+|                       |                       | AQABAAABAQC95opt4SPEC |
+|                       |                       | 06tOYsJQJIuN23BbLMGmY |
+|                       |                       | o8ysVZQc4h2DZE9ugbjWW |
+|                       |                       | GS1/pweUGjVstgzMkBEeB |
+|                       |                       | CByaEf/RJKNecKRPeGd2B |
+|                       |                       | w9DCj/bn5Z6rGfNENKBmo |
+|                       |                       | 618mUJBv              |
+|                       |                       | dlEgea96QGjOwSB7/gmon |
+|                       |                       | duC7gsWDMNcOdSE3wJMTi |
+|                       |                       | m4lddiBx4RgC9yXsJ6Tkz |
+|                       |                       | 9BHD73MXPpT5ETnse+A3f |
+|                       |                       | w3IGVSjaueVnlUyUmOBf7 |
+|                       |                       | fzmZbhlFVXf2Zi2rFTXqv |
+|                       |                       | bdGHKkzpw1U8eB8xFPP7y |
+|                       |                       | d5u1u0e6              |
+|                       |                       | Acju/8aZ/l17IDFiLke5I |
+|                       |                       | zlqIMRTEbDwLNeO84YQKW |
+|                       |                       | Tm9fODHzhYe0yvxqLiK07 |
+|                       |                       | ansible-generated on  |
+|                       |                       | host'                 |
++-----------------------+-----------------------+-----------------------+
+| stderr                | When stderr is        | Standard error from   |
+|                       | returned by a command | running commands      |
+| string                | that is run           |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | Group wheels does not |
+|                       |                       | exist                 |
++-----------------------+-----------------------+-----------------------+
+| stdout                | When standard output  | Standard output from  |
+|                       | is returned by the    | running commands      |
+| string                | command that is run   |                       |
++-----------------------+-----------------------+-----------------------+
+| system                | When system is passed | Whether or not the    |
+|                       | to the module and the | account is a system   |
+| boolean               | account does not      | account               |
+|                       | exist                 |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | True                  |
++-----------------------+-----------------------+-----------------------+
+| uid                   | When UID is passed to | User ID of the user   |
+|                       | the module            | account               |
+| integer               |                       |                       |
+|                       |                       | Sample:               |
+|                       |                       |                       |
+|                       |                       | 1044                  |
++-----------------------+-----------------------+-----------------------+
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Stephen Fromm (@sfromm)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

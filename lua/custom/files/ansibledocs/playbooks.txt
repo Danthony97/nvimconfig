@@ -1,0 +1,202 @@
+-   Network Advanced Topics
+-   Network Developer Guide
+
+Ansible Galaxy
+
+-   Galaxy User Guide
+-   Galaxy Developer Guide
+
+Reference & Appendices
+
+-   Collection Index
+-   Indexes of all modules and plugins
+-   Playbook Keywords
+-   Return Values
+-   Ansible Configuration Settings
+-   Controlling how Ansible behaves: precedence rules
+-   YAML Syntax
+-   Python 3 Support
+-   Interpreter Discovery
+-   Releases and maintenance
+-   Testing Strategies
+-   Sanity Tests
+-   Frequently Asked Questions
+-   Glossary
+-   Ansible Reference: Module Utilities
+-   Special Variables
+-   Red Hat Ansible Automation Platform
+-   Ansible Automation Hub
+-   Logging Ansible output
+
+Roadmaps
+
+-   Ansible Roadmap
+-   ansible-core Roadmaps
+
+[]
+
+Ansible
+
+-   
+-   Using Ansible playbooks
+-   Working with playbooks
+-   Edit on GitHub
+
+------------------------------------------------------------------------
+
+Working with playbooks
+
+Playbooks record and execute Ansible’s configuration, deployment, and
+orchestration functions. They can describe a policy you want your remote
+systems to enforce, or a set of steps in a general IT process.
+
+If Ansible modules are the tools in your workshop, playbooks are your
+instruction manuals, and your inventory of hosts are your raw material.
+
+At a basic level, playbooks can be used to manage configurations of and
+deployments to remote machines. At a more advanced level, they can
+sequence multi-tier rollouts involving rolling updates, and can delegate
+actions to other hosts, interacting with monitoring servers and load
+balancers along the way.
+
+Playbooks are designed to be human-readable and are developed in a basic
+text language. There are multiple ways to organize playbooks and the
+files they include, and we’ll offer up some suggestions on that and
+making the most out of Ansible.
+
+You should look at Example Playbooks while reading along with the
+playbook documentation. These illustrate best practices as well as how
+to put many of the various concepts together.
+
+-   Templating (Jinja2)
+    -   Jinja2 Example
+-   Using filters to manipulate data
+    -   Handling undefined variables
+    -   Defining different values for true/false/null (ternary)
+    -   Managing data types
+    -   Formatting data: YAML and JSON
+    -   Combining and selecting data
+    -   Randomizing data
+    -   Managing list variables
+    -   Selecting from sets or lists (set theory)
+    -   Calculating numbers (math)
+    -   Managing network interactions
+    -   Hashing and encrypting strings and passwords
+    -   Manipulating text
+    -   Manipulating strings
+    -   Managing UUIDs
+    -   Handling dates and times
+    -   Getting Kubernetes resource names
+-   Tests
+    -   Test syntax
+    -   Testing strings
+    -   Vault
+    -   Testing truthiness
+    -   Comparing versions
+    -   Set theory tests
+    -   Testing if a list contains a value
+    -   Testing if a list value is True
+    -   Testing paths
+    -   Testing size formats
+    -   Testing task results
+    -   Type Tests
+-   Lookups
+    -   Using lookups in variables
+-   Python3 in templates
+    -   Dictionary views
+    -   dict.iteritems()
+-   The now function: get the current time
+-   Loops
+    -   Comparing loop and with_*
+    -   Standard loops
+    -   Registering variables with a loop
+    -   Complex loops
+    -   Ensuring list input for loop: using query rather than lookup
+    -   Adding controls to loops
+    -   Migrating from with_X to loop
+-   Controlling where tasks run: delegation and local actions
+    -   Tasks that cannot be delegated
+    -   Delegating tasks
+    -   Delegation and parallel execution
+    -   Delegating facts
+    -   Local playbooks
+-   Conditionals
+    -   Basic conditionals with when
+    -   Debugging conditionals
+    -   Commonly-used facts
+-   Blocks
+    -   Grouping tasks with blocks
+    -   Handling errors with blocks
+-   Handlers: running operations on change
+    -   Handler example
+    -   Notifying handlers
+    -   Naming handlers
+    -   Controlling when handlers run
+    -   Using variables with handlers
+    -   Handlers in roles
+    -   Includes and imports in handlers
+    -   Meta tasks as handlers
+    -   Limitations
+-   Error handling in playbooks
+    -   Ignoring failed commands
+    -   Ignoring unreachable host errors
+    -   Resetting unreachable hosts
+    -   Handlers and failure
+    -   Defining failure
+    -   Defining “changed”
+    -   Ensuring success for command and shell
+    -   Aborting a play on all hosts
+    -   Controlling errors in blocks
+-   Setting the remote environment
+    -   Setting the remote environment in a task
+-   Working with language-specific version managers
+-   Re-using Ansible artifacts
+    -   Creating re-usable files and roles
+    -   Re-using playbooks
+    -   When to turn a playbook into a role
+    -   Re-using files and roles
+    -   Re-using tasks as handlers
+-   Roles
+    -   Role directory structure
+    -   Storing and finding roles
+    -   Using roles
+    -   Role argument validation
+    -   Running a role multiple times in one play
+    -   Using role dependencies
+    -   Embedding modules and plugins in roles
+    -   Sharing roles: Ansible Galaxy
+-   Module defaults
+    -   Module defaults groups
+-   Interactive input: prompts
+    -   Hashing values supplied by vars_prompt
+    -   Allowing special characters in vars_prompt values
+-   Using Variables
+    -   Creating valid variable names
+    -   Simple variables
+    -   When to quote variables (a YAML gotcha)
+    -   Boolean variables
+    -   List variables
+    -   Dictionary variables
+    -   Registering variables
+    -   Referencing nested variables
+    -   Transforming variables with Jinja2 filters
+    -   Where to set variables
+    -   Variable precedence: Where should I put a variable?
+    -   Using advanced variable syntax
+-   Discovering variables: facts and magic variables
+    -   Ansible facts
+    -   Information about Ansible: magic variables
+-   Playbook Example: Continuous Delivery and Rolling Upgrades
+    -   What is continuous delivery?
+    -   Site deployment
+    -   Reusable content: roles
+    -   Configuration: group variables
+    -   The rolling upgrade
+    -   Managing other load balancers
+    -   Continuous delivery end-to-end
+
+Previous Next
+
+------------------------------------------------------------------------
+
+© Copyright Ansible project contributors. Last updated on Jul 18, 2023.

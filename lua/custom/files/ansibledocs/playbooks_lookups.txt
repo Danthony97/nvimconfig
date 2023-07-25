@@ -1,0 +1,106 @@
+-   Network Getting Started
+-   Network Advanced Topics
+-   Network Developer Guide
+
+Ansible Galaxy
+
+-   Galaxy User Guide
+-   Galaxy Developer Guide
+
+Reference & Appendices
+
+-   Collection Index
+-   Indexes of all modules and plugins
+-   Playbook Keywords
+-   Return Values
+-   Ansible Configuration Settings
+-   Controlling how Ansible behaves: precedence rules
+-   YAML Syntax
+-   Python 3 Support
+-   Interpreter Discovery
+-   Releases and maintenance
+-   Testing Strategies
+-   Sanity Tests
+-   Frequently Asked Questions
+-   Glossary
+-   Ansible Reference: Module Utilities
+-   Special Variables
+-   Red Hat Ansible Automation Platform
+-   Ansible Automation Hub
+-   Logging Ansible output
+
+Roadmaps
+
+-   Ansible Roadmap
+-   ansible-core Roadmaps
+
+[]
+
+Ansible
+
+-   
+-   Using Ansible playbooks
+-   Working with playbooks
+-   Lookups
+-   Edit on GitHub
+
+------------------------------------------------------------------------
+
+Lookups
+
+Lookup plugins retrieve data from outside sources such as files,
+databases, key/value stores, APIs, and other services. Like all
+templating, lookups execute and are evaluated on the Ansible control
+machine. Ansible makes the data returned by a lookup plugin available
+using the standard templating system. Before Ansible 2.5, lookups were
+mostly used indirectly in with_<lookup> constructs for looping. Starting
+with Ansible 2.5, lookups are used more explicitly as part of Jinja2
+expressions fed into the loop keyword.
+
+Using lookups in variables
+
+You can populate variables using lookups. Ansible evaluates the value
+each time it is executed in a task (or template).
+
+    vars:
+      motd_value: "{{ lookup('file', '/etc/motd') }}"
+    tasks:
+      - debug:
+          msg: "motd value is {{ motd_value }}"
+
+For more details and a list of lookup plugins in ansible-core, see
+Working with plugins. You may also find lookup plugins in collections.
+You can review a list of lookup plugins installed on your control
+machine with the command ansible-doc -l -t lookup.
+
+See also
+
+Working with playbooks
+
+    An introduction to playbooks
+
+Conditionals
+
+    Conditional statements in playbooks
+
+Using Variables
+
+    All about variables
+
+Loops
+
+    Looping in playbooks
+
+User Mailing List
+
+    Have a question? Stop by the google group!
+
+Real-time chat
+
+    How to join Ansible chat channels
+
+Previous Next
+
+------------------------------------------------------------------------
+
+© Copyright Ansible project contributors. Last updated on Jul 18, 2023.

@@ -1,0 +1,78 @@
+
+hostname – Manage hostname¶
+
+-   Synopsis
+
+-   Requirements
+
+-   Parameters
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Set system’s hostname, supports most OSs/Distributions, including
+    those using systemd.
+
+-   Note, this module does NOT modify /etc/hosts. You need to modify it
+    yourself using other modules like template or replace.
+
+-   Windows, HP-UX and AIX are not currently supported.
+
+Requirements¶
+
+The below requirements are needed on the host that executes this module.
+
+-   hostname
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| name                  |                       | Name of the host      |
+|                       |                       |                       |
+| - / required          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| use                   | -   generic           | Which strategy to use |
+|                       | -   debian            | to update the         |
+| -                     | -   sles              | hostname.             |
+|                       | -   redhat            |                       |
+| added in 2.9          | -   alpine            | If not set we try to  |
+|                       | -   systemd           | autodetect, but this  |
+|                       | -   openrc            | can be problematic,   |
+|                       | -   openbsd           | specially with        |
+|                       | -   solaris           | containers as they    |
+|                       | -   freebsd           | can present           |
+|                       |                       | misleading            |
+|                       |                       | information.          |
++-----------------------+-----------------------+-----------------------+
+
+Examples¶
+
+    - hostname:
+        name: web01
+
+Status¶
+
+-   This module is not guaranteed to have a backwards compatible
+    interface. [preview]
+
+-   This module is maintained by the Ansible Community. [community]
+
+Authors¶
+
+-   Adrian Likins (@alikins)
+
+-   Hideki Saito (@saito-hideki)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

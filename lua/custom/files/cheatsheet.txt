@@ -1,0 +1,49 @@
+CTRL + V in normal mode changes to visual block mode.
+Visual block mode allows you to change multiple lines after hitting SHIFT + I
+
+//This is a multi line test!
+//This is a multi line test!
+//This is a multi line test!
+//This is a multi line test!
+
+
+In visual block mode you can also use C to change selected text.
+
+//This is a multi lines test!
+//This is a multi lines test!
+//This is a multi lines test!
+//This is a multi lines test!
+
+
+
+If you want to search for a specific string you can use / from normal mode.
+The search will automatically put your curser on the first find of the string.
+You can step through the results by pressing N to advance forward and SHIFT + N to go back.
+
+//search for slashsearch
+//this is also an instance of slashsearch
+//slashsearch is cool!
+
+You can change all matches by first going in to command mode (:).
+Then using %s/[string to find]/[replacement for string]/g.
+
+
+//edit this string: phill
+//it works here too!: phill
+//even down here: phill
+
+
+You can also change a string only on the line you have selected by dropping the %
+
+//edit this string: bob
+//it wont work here phill
+//or down here: phill
+
+
+Multi line indents can be done by hitting V, then arrow down or up to select the text you want, then hitting <Shift> >
+You can also put a number before > to indicate by how many tabs you want over (v <Down> 2 <Shift> >)
+
+  Indent me more!
+  Indent me more!
+  Indent me more!
+

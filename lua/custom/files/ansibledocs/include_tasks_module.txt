@@ -1,0 +1,158 @@
+
+include_tasks – Dynamically include a task list¶
+
+New in version 2.4.
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   Includes a file with a list of tasks to be executed in the current
+    playbook.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| apply                 |                       | Accepts a hash of     |
+|                       |                       | task keywords (e.g.   |
+| string                |                       | tags, become) that    |
+|                       |                       | will be applied to    |
+| added in 2.7          |                       | the tasks within the  |
+|                       |                       | include.              |
++-----------------------+-----------------------+-----------------------+
+| file                  |                       | The name of the       |
+|                       |                       | imported file is      |
+| string                |                       | specified directly    |
+|                       |                       | without any other     |
+| added in 2.7          |                       | option.               |
+|                       |                       |                       |
+|                       |                       | Unlike import_tasks,  |
+|                       |                       | most keywords,        |
+|                       |                       | including loop,       |
+|                       |                       | with_items, and       |
+|                       |                       | conditionals, apply   |
+|                       |                       | to this statement.    |
+|                       |                       |                       |
+|                       |                       | The do until loop is  |
+|                       |                       | not supported on      |
+|                       |                       | include_tasks.        |
++-----------------------+-----------------------+-----------------------+
+| free-form             |                       | Supplying a file name |
+|                       |                       | via free-form         |
+| -                     |                       | - in                  |
+|                       |                       | clude_tasks: file.yml |
+|                       |                       | of a file to be       |
+|                       |                       | included is the       |
+|                       |                       | equivalent of         |
+|                       |                       | specifying an         |
+|                       |                       | argument of file.     |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   This is a core feature of the Ansible, rather than a module, and
+    cannot be overridden like a module.
+
+See Also¶
+
+See also
+
+import_playbook – Import a playbook
+
+    The official documentation on the import_playbook module.
+
+import_role – Import a role into a play
+
+    The official documentation on the import_role module.
+
+import_tasks – Import a task list
+
+    The official documentation on the import_tasks module.
+
+include_role – Load and execute a role
+
+    The official documentation on the include_role module.
+
+Including and Importing
+
+    More information related to including and importing playbooks, roles
+    and tasks.
+
+Examples¶
+
+    - hosts: all
+      tasks:
+        - debug:
+            msg: task1
+
+        - name: Include task list in play
+          include_tasks: stuff.yaml
+
+        - debug:
+            msg: task10
+
+    - hosts: all
+      tasks:
+        - debug:
+            msg: task1
+
+        - name: Include task list in play only if the condition is true
+          include_tasks: "{{ hostvar }}.yaml"
+          when: hostvar is defined
+
+    - name: Apply tags to tasks within included file
+      include_tasks:
+        file: install.yml
+        apply:
+          tags:
+            - install
+      tags:
+        - always
+
+    - name: Apply tags to tasks within included file when using free-form
+      include_tasks: install.yml
+      args:
+        apply:
+          tags:
+            - install
+      tags:
+        - always
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Ansible Core Team (@ansible)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

@@ -1,0 +1,405 @@
+see the Red Hat AAP platform lifecycle.
+
+unarchive – Unpacks an archive after (optionally) copying it from the local machine¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   The unarchive module unpacks an archive. It will not unpack a
+    compressed file that does not contain an archive.
+
+-   By default, it will copy the source file from the local system to
+    the target before unpacking.
+
+-   Set remote_src=yes to unpack an archive which already exists on the
+    target.
+
+-   If checksum validation is desired, use get_url or uri instead to
+    fetch the file and set remote_src=yes.
+
+-   For Windows targets, use the win_unzip module instead.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| attributes            |                       | The attributes the    |
+|                       |                       | resulting file or     |
+| string                |                       | directory should      |
+|                       |                       | have.                 |
+|                       |                       |                       |
+|                       |                       | To get supported      |
+|                       |                       | flags look at the man |
+|                       |                       | page for chattr on    |
+|                       |                       | the target system.    |
+|                       |                       |                       |
+|                       |                       | This string should    |
+|                       |                       | contain the           |
+|                       |                       | attributes in the     |
+|                       |                       | same order as the one |
+|                       |                       | displayed by lsattr.  |
+|                       |                       |                       |
+|                       |                       | The = operator is     |
+|                       |                       | assumed as default,   |
+|                       |                       | otherwise + or -      |
+|                       |                       | operators need to be  |
+|                       |                       | included in the       |
+|                       |                       | string.               |
+|                       |                       |                       |
+|                       |                       | aliases: attr         |
++-----------------------+-----------------------+-----------------------+
+| copy                  | -   no                | If true, the file is  |
+|                       |                       | copied from local     |
+| boolean               | -   yes ←             | 'master' to the       |
+|                       |                       | target machine,       |
+|                       |                       | otherwise, the plugin |
+|                       |                       | will look for src     |
+|                       |                       | archive at the target |
+|                       |                       | machine.              |
+|                       |                       |                       |
+|                       |                       | This option has been  |
+|                       |                       | deprecated in favor   |
+|                       |                       | of remote_src.        |
+|                       |                       |                       |
+|                       |                       | This option is        |
+|                       |                       | mutually exclusive    |
+|                       |                       | with remote_src.      |
++-----------------------+-----------------------+-----------------------+
+| creates               |                       | If the specified      |
+|                       |                       | absolute path (file   |
+| path                  |                       | or directory) already |
+|                       |                       | exists, this step     |
+|                       |                       | will not be run.      |
++-----------------------+-----------------------+-----------------------+
+| decrypt               | -   no                | This option controls  |
+|                       |                       | the autodecryption of |
+| boolean               | -   yes ←             | source files using    |
+|                       |                       | vault.                |
+| added in 2.4          |                       |                       |
++-----------------------+-----------------------+-----------------------+
+| dest                  |                       | Remote absolute path  |
+|                       |                       | where the archive     |
+| path / required       |                       | should be unpacked.   |
++-----------------------+-----------------------+-----------------------+
+| exclude               |                       | List the directory    |
+|                       |                       | and file entries that |
+| list                  |                       | you would like to     |
+|                       |                       | exclude from the      |
+|                       |                       | unarchive action.     |
++-----------------------+-----------------------+-----------------------+
+| extra_opts            | Default:              | Specify additional    |
+|                       |                       | options by passing in |
+| list                  | ""                    | an array.             |
+|                       |                       |                       |
+|                       |                       | Each space-separated  |
+|                       |                       | command-line option   |
+|                       |                       | should be a new       |
+|                       |                       | element of the array. |
+|                       |                       | See examples.         |
+|                       |                       |                       |
+|                       |                       | Command-line options  |
+|                       |                       | with multiple         |
+|                       |                       | elements must use     |
+|                       |                       | multiple lines in the |
+|                       |                       | array, one for each   |
+|                       |                       | element.              |
++-----------------------+-----------------------+-----------------------+
+| group                 |                       | Name of the group     |
+|                       |                       | that should own the   |
+| string                |                       | file/directory, as    |
+|                       |                       | would be fed to       |
+|                       |                       | chown.                |
++-----------------------+-----------------------+-----------------------+
+| keep_newer            | -   no ←              | Do not replace        |
+|                       |                       | existing files that   |
+| boolean               | -   yes               | are newer than files  |
+|                       |                       | from the archive.     |
++-----------------------+-----------------------+-----------------------+
+| list_files            | -   no ←              | If set to True,       |
+|                       |                       | return the list of    |
+| boolean               | -   yes               | files that are        |
+|                       |                       | contained in the      |
+|                       |                       | tarball.              |
++-----------------------+-----------------------+-----------------------+
+| mode                  |                       | The permissions the   |
+|                       |                       | resulting file or     |
+| string                |                       | directory should      |
+|                       |                       | have.                 |
+|                       |                       |                       |
+|                       |                       | For those used to     |
+|                       |                       | /usr/bin/chmod        |
+|                       |                       | remember that modes   |
+|                       |                       | are actually octal    |
+|                       |                       | numbers. You must     |
+|                       |                       | either add a leading  |
+|                       |                       | zero so that          |
+|                       |                       | Ansible's YAML parser |
+|                       |                       | knows it is an octal  |
+|                       |                       | number (like 0644 or  |
+|                       |                       | 01777) or quote it    |
+|                       |                       | (like '644' or        |
+|                       |                       | '1777') so Ansible    |
+|                       |                       | receives a string and |
+|                       |                       | can do its own        |
+|                       |                       | conversion from       |
+|                       |                       | string into number.   |
+|                       |                       |                       |
+|                       |                       | Giving Ansible a      |
+|                       |                       | number without        |
+|                       |                       | following one of      |
+|                       |                       | these rules will end  |
+|                       |                       | up with a decimal     |
+|                       |                       | number which will     |
+|                       |                       | have unexpected       |
+|                       |                       | results.              |
+|                       |                       |                       |
+|                       |                       | As of Ansible 1.8,    |
+|                       |                       | the mode may be       |
+|                       |                       | specified as a        |
+|                       |                       | symbolic mode (for    |
+|                       |                       | example, u+rwx or     |
+|                       |                       | u=rw,g=r,o=r).        |
++-----------------------+-----------------------+-----------------------+
+| owner                 |                       | Name of the user that |
+|                       |                       | should own the        |
+| string                |                       | file/directory, as    |
+|                       |                       | would be fed to       |
+|                       |                       | chown.                |
++-----------------------+-----------------------+-----------------------+
+| remote_src            | -   no ←              | Set to yes to         |
+|                       |                       | indicate the archived |
+| boolean               | -   yes               | file is already on    |
+|                       |                       | the remote system and |
+|                       |                       | not local to the      |
+|                       |                       | Ansible controller.   |
+|                       |                       |                       |
+|                       |                       | This option is        |
+|                       |                       | mutually exclusive    |
+|                       |                       | with copy.            |
++-----------------------+-----------------------+-----------------------+
+| selevel               | Default:              | The level part of the |
+|                       |                       | SELinux file context. |
+| string                | "s0"                  |                       |
+|                       |                       | This is the MLS/MCS   |
+|                       |                       | attribute, sometimes  |
+|                       |                       | known as the range.   |
+|                       |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the level |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| serole                |                       | The role part of the  |
+|                       |                       | SELinux file context. |
+| string                |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the role  |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| setype                |                       | The type part of the  |
+|                       |                       | SELinux file context. |
+| string                |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the type  |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| seuser                |                       | The user part of the  |
+|                       |                       | SELinux file context. |
+| string                |                       |                       |
+|                       |                       | By default it uses    |
+|                       |                       | the system policy,    |
+|                       |                       | where applicable.     |
+|                       |                       |                       |
+|                       |                       | When set to _default, |
+|                       |                       | it will use the user  |
+|                       |                       | portion of the policy |
+|                       |                       | if available.         |
++-----------------------+-----------------------+-----------------------+
+| src                   |                       | If remote_src=no      |
+|                       |                       | (default), local path |
+| path / required       |                       | to archive file to    |
+|                       |                       | copy to the target    |
+|                       |                       | server; can be        |
+|                       |                       | absolute or relative. |
+|                       |                       | If remote_src=yes,    |
+|                       |                       | path on the target    |
+|                       |                       | server to existing    |
+|                       |                       | archive file to       |
+|                       |                       | unpack.               |
+|                       |                       |                       |
+|                       |                       | If remote_src=yes and |
+|                       |                       | src contains ://, the |
+|                       |                       | remote machine will   |
+|                       |                       | download the file     |
+|                       |                       | from the URL first.   |
+|                       |                       | (version_added 2.0).  |
+|                       |                       | This is only for      |
+|                       |                       | simple cases, for     |
+|                       |                       | full download support |
+|                       |                       | use the get_url       |
+|                       |                       | module.               |
++-----------------------+-----------------------+-----------------------+
+| unsafe_writes         | -   no ←              | Influence when to use |
+|                       |                       | atomic operation to   |
+| boolean               | -   yes               | prevent data          |
+|                       |                       | corruption or         |
+|                       |                       | inconsistent reads    |
+|                       |                       | from the target file. |
+|                       |                       |                       |
+|                       |                       | By default this       |
+|                       |                       | module uses atomic    |
+|                       |                       | operations to prevent |
+|                       |                       | data corruption or    |
+|                       |                       | inconsistent reads    |
+|                       |                       | from the target       |
+|                       |                       | files, but sometimes  |
+|                       |                       | systems are           |
+|                       |                       | configured or just    |
+|                       |                       | broken in ways that   |
+|                       |                       | prevent this. One     |
+|                       |                       | example is docker     |
+|                       |                       | mounted files, which  |
+|                       |                       | cannot be updated     |
+|                       |                       | atomically from       |
+|                       |                       | inside the container  |
+|                       |                       | and can only be       |
+|                       |                       | written in an unsafe  |
+|                       |                       | manner.               |
+|                       |                       |                       |
+|                       |                       | This option allows    |
+|                       |                       | Ansible to fall back  |
+|                       |                       | to unsafe methods of  |
+|                       |                       | updating files when   |
+|                       |                       | atomic operations     |
+|                       |                       | fail (however, it     |
+|                       |                       | doesn't force Ansible |
+|                       |                       | to perform unsafe     |
+|                       |                       | writes).              |
+|                       |                       |                       |
+|                       |                       | IMPORTANT! Unsafe     |
+|                       |                       | writes are subject to |
+|                       |                       | race conditions and   |
+|                       |                       | can lead to data      |
+|                       |                       | corruption.           |
++-----------------------+-----------------------+-----------------------+
+| validate_certs        | -   no                | This only applies if  |
+|                       |                       | using a https URL as  |
+| boolean               | -   yes ←             | the source of the     |
+|                       |                       | file.                 |
+|                       |                       |                       |
+|                       |                       | This should only set  |
+|                       |                       | to no used on         |
+|                       |                       | personally controlled |
+|                       |                       | sites using           |
+|                       |                       | self-signed           |
+|                       |                       | certificate.          |
+|                       |                       |                       |
+|                       |                       | Prior to 2.2 the code |
+|                       |                       | worked as if this was |
+|                       |                       | set to yes.           |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   Requires zipinfo and gtar/unzip command on target host.
+
+-   Can handle .zip files using unzip as well as .tar, .tar.gz, .tar.bz2
+    and .tar.xz files using gtar.
+
+-   Does not handle .gz files, .bz2 files or .xz files that do not
+    contain a .tar archive.
+
+-   Uses gtar’s --diff arg to calculate if changed or not. If this arg
+    is not supported, it will always unpack the archive.
+
+-   Existing files/directories in the destination which are not in the
+    archive are not touched. This is the same behavior as a normal
+    archive extraction.
+
+-   Existing files/directories in the destination which are not in the
+    archive are ignored for purposes of deciding if the archive should
+    be unpacked or not.
+
+See Also¶
+
+See also
+
+archive – Creates a compressed archive of one or more files or trees
+
+    The official documentation on the archive module.
+
+iso_extract – Extract files from an ISO image
+
+    The official documentation on the iso_extract module.
+
+win_unzip – Unzips compressed files and archives on the Windows node
+
+    The official documentation on the win_unzip module.
+
+Examples¶
+
+    - name: Extract foo.tgz into /var/lib/foo
+      unarchive:
+        src: foo.tgz
+        dest: /var/lib/foo
+
+    - name: Unarchive a file that is already on the remote machine
+      unarchive:
+        src: /tmp/foo.zip
+        dest: /usr/local/bin
+        remote_src: yes
+
+    - name: Unarchive a file that needs to be downloaded (added in 2.0)
+      unarchive:
+        src: https://example.com/example.zip
+        dest: /usr/local/bin
+        remote_src: yes
+
+    - name: Unarchive a file with extra options
+      unarchive:
+        src: /tmp/foo.zip
+        dest: /usr/local/bin
+        extra_opts:
+        - --transform
+        - s/^xxx/yyy/
+
+Status¶
+
+-   This module is not guaranteed to have a backwards compatible
+    interface. [preview]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Michael DeHaan
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

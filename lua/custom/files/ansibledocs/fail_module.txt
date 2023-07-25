@@ -1,0 +1,91 @@
+
+fail – Fail with custom message¶
+
+-   Synopsis
+
+-   Parameters
+
+-   Notes
+
+-   See Also
+
+-   Examples
+
+-   Status
+
+Synopsis¶
+
+-   This module fails the progress with a custom message.
+
+-   It can be useful for bailing out when a certain condition is met
+    using when.
+
+-   This module is also supported for Windows targets.
+
+Parameters¶
+
++-----------------------+-----------------------+-----------------------+
+| Parameter             | Choices/Defaults      | Comments              |
++=======================+=======================+=======================+
+| msg                   | Default:              | The customized        |
+|                       |                       | message used for      |
+| string                | "Failed as requested  | failing execution.    |
+|                       | from task"            |                       |
+|                       |                       | If omitted, fail will |
+|                       |                       | simply bail out with  |
+|                       |                       | a generic message.    |
++-----------------------+-----------------------+-----------------------+
+
+Notes¶
+
+Note
+
+-   This module is also supported for Windows targets.
+
+See Also¶
+
+See also
+
+assert – Asserts given expressions are true
+
+    The official documentation on the assert module.
+
+debug – Print statements during execution
+
+    The official documentation on the debug module.
+
+meta – Execute Ansible ‘actions’
+
+    The official documentation on the meta module.
+
+Examples¶
+
+    # Example playbook using fail and when together
+    - fail:
+        msg: The system may not be provisioned according to the CMDB status.
+      when: cmdb_status != "to-be-staged"
+
+Status¶
+
+-   This module is guaranteed to have backward compatible interface
+    changes going forward. [stableinterface]
+
+-   This module is maintained by the Ansible Core Team. [core]
+
+Red Hat Support¶
+
+More information about Red Hat’s support of this module is available
+from this Red Hat Knowledge Base article.
+
+Authors¶
+
+-   Dag Wieers (@dagwieers)
+
+Hint
+
+If you notice any issues in this documentation, you can edit this
+document to improve it.
+
+------------------------------------------------------------------------
+
+© Copyright 2019 Red Hat, Inc. Last updated on May 27, 2022.

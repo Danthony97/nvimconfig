@@ -46,6 +46,22 @@ M.general = {
     ["<leader>b"] = { "<cmd> enew <CR>", "New buffer" },
     ["<leader>ch"] = { "<cmd> NvCheatsheet <CR>", "Mapping cheatsheet" },
 
+    ["<leader>cv"] = {
+      function ()
+        local home = os.getenv( "HOME" )
+        dofile(home .. "/.config/nvim/lua/custom/cheatsheet-display.lua")
+      end,
+      "Vim cheatsheet",
+    },
+
+    ["<leader>cd"] = {
+      function ()
+        local home = os.getenv( "HOME" )
+        dofile(home .. "/.config/nvim/lua/custom/ansible-docs.lua")
+      end,
+      "Ansible Documentation"
+    },
+
     ["<leader>fm"] = {
       function()
         vim.lsp.buf.format { async = true }
