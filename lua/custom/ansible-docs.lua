@@ -319,7 +319,7 @@ function Display_file(doc_file)
     },
     position = "50%",
     size = {
-      width = "80%",
+      width = "50%",
       height = "80%",
     },
   })

@@ -28,6 +28,17 @@ local plugins = {
       require "custom.configs.lspconfig"
     end,
   },
+
+  {
+  "folke/todo-comments.nvim",
+  dependencies = { "nvim-lua/plenary.nvim" },
+  },
+  { "alec-gibson/nvim-tetris", lazy = false },
+  {
+  'alanfortlink/blackjack.nvim',
+  requires = {'nvim-lua/plenary.nvim'},
+  lazy = false,
+  },
 }
 
 return plugins
